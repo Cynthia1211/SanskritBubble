@@ -16,7 +16,7 @@
 .topbar .brand-script img {
     display: block;
     width: auto;
-    height: 76px;
+    height: 72px;
     max-width: none;
     object-fit: contain
 }
@@ -354,8 +354,8 @@
 }
 
 .loaded {
-    width: 58px;
-    height: 58px;
+    width: 68px;
+    height: 68px;
     z-index: 2
 }
 
@@ -1487,10 +1487,18 @@ body {
     fill: none;
     stroke: #29334a;
     stroke-width: 2.5;
-    stroke-dasharray: 7 6;
     stroke-linecap: round;
     stroke-linejoin: round;
     filter: drop-shadow(0 1px 0 #fff)
+}
+
+.aim-trajectory .aim-preview {
+    stroke-dasharray: 7 6
+}
+
+.aim-trajectory .aim-direction {
+    stroke-width: 5;
+    stroke-dasharray: none
 }
 
 .aim-trajectory circle {

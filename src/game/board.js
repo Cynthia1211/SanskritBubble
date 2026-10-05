@@ -1,5 +1,5 @@
 // Build a board and ensure every sound in the selected lesson is present.
-export function createBoard(level, { rows = 10, cols = 14, initialRows = 5, fillChance = 0.5 } = {}) {
+export function createBoard(level, { rows = 10, cols = 14, initialRows = 5, fillChance = 0.7 } = {}) {
   const pool = level?.bubble_pool ?? []
   if (!pool.length) return []
 

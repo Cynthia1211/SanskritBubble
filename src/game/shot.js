@@ -1,12 +1,14 @@
 export function calculateShot({ field, angle }) {
   const grid = field?.querySelector('.bubble-grid')
   const projectile = field?.querySelector('.loaded')
-  if (!field || !grid || !projectile) return { width: 0, height: 0, points: [], collision: null, impact: null }
+  const referenceBubble = field?.querySelector('.bubble-cell')
+  if (!field || !grid || !projectile || !referenceBubble) return { width: 0, height: 0, points: [], collision: null, impact: null }
 
   const fieldRect = field.getBoundingClientRect()
   const gridRect = grid.getBoundingClientRect()
   const projectileRect = projectile.getBoundingClientRect()
-  const radius = projectileRect.width * 0.43
+  // The launcher looks larger, but all projectile geometry uses a board bubble's radius.
+  const radius = referenceBubble.getBoundingClientRect().width / 2
   const start = { x: projectileRect.left + projectileRect.width / 2, y: projectileRect.top + projectileRect.height / 2 }
   let direction = { x: Math.sin(angle * Math.PI / 180), y: -Math.cos(angle * Math.PI / 180) }
   let origin = start

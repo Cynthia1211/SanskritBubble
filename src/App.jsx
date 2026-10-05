@@ -24,9 +24,10 @@ function App() {
   const [busy, setBusy] = useState(false)
   const [gameOver, setGameOver] = useState(false)
   const [aimAngle, setAimAngle] = useState(0)
-  const [trajectory, setTrajectory] = useState({ width: 0, height: 0, points: [], candidates: [] })
+  const [trajectory, setTrajectory] = useState({ width: 0, height: 0, points: [], fullPoints: [], candidates: [] })
   const playfieldRef = useRef(null)
   const level = levels?.[levelId]
+  const showAimGuide = levelId === 'level_1'
   const pool = useMemo(() => level?.bubble_pool ?? [], [level])
   const [bubbleIndex, setBubbleIndex] = useState(0)
   const activePool = useMemo(() => {
@@ -141,16 +142,29 @@ function App() {
     const updateTrajectory = () => {
       const shot = traceShot(aimAngle)
       const candidates = getPlacementCandidates(shot)
-      const points = [...shot.points]
-      if (!shot.collision && candidates[0] && points.length) {
-        points[points.length - 1] = { x: candidates[0].x, y: candidates[0].y }
+      const fullPoints = [...shot.points]
+      if (showAimGuide && !shot.collision && candidates[0] && fullPoints.length) {
+        fullPoints[fullPoints.length - 1] = { x: candidates[0].x, y: candidates[0].y }
       }
-      setTrajectory({ ...shot, points, candidates })
+
+      // Keep the direction cue at 2.5R using the regular board bubble as reference.
+      const directionPoints = shot.points.slice(0, 1)
+      if (directionPoints.length) {
+        const referenceBubble = playfieldRef.current?.querySelector('.bubble-cell')
+        const length = (referenceBubble?.getBoundingClientRect().width ?? 0) * 1.5
+        const radians = aimAngle * Math.PI / 180
+        directionPoints.push({
+          x: directionPoints[0].x + Math.sin(radians) * length,
+          y: directionPoints[0].y - Math.cos(radians) * length,
+        })
+      }
+
+      setTrajectory({ ...shot, points: directionPoints, fullPoints, candidates })
     }
     updateTrajectory()
     window.addEventListener('resize', updateTrajectory)
     return () => window.removeEventListener('resize', updateTrajectory)
-  }, [aimAngle, board, bubbleIndex, levels, traceShot, getPlacementCandidates])
+  }, [aimAngle, board, bubbleIndex, levels, showAimGuide, traceShot, getPlacementCandidates])
 
   if (!levels) return <main className="loading"><span className="brand-mark">अ</span><p>{message || 'Getting your Sanskrit bubbles ready…'}</p></main>
 
@@ -168,10 +182,11 @@ function App() {
             </div>)}</div>)}
           </div>
           <svg className="aim-trajectory" viewBox={`0 0 ${Math.max(1, trajectory.width)} ${Math.max(1, trajectory.height)}`} aria-hidden="true">
-            {trajectory.points.length > 1 && <polyline points={trajectory.points.map(({ x, y }) => `${x},${y}`).join(' ')} />}
-            {trajectory.points.slice(1, -1).map((point, index) => <circle key={`bounce-${index}`} cx={point.x} cy={point.y} r="4" />)}
-            {trajectory.points.length > 1 && <circle className="trajectory-end" cx={trajectory.points[trajectory.points.length - 1].x} cy={trajectory.points[trajectory.points.length - 1].y} r="5" />}
-            {trajectory.candidates.slice(0, 1).map((candidate) => <circle key={`candidate-${candidate.row}-${candidate.col}`} className="landing-candidate preferred" cx={candidate.x} cy={candidate.y} r={Math.max(8, candidate.radius - 2)} />)}
+            {showAimGuide && trajectory.fullPoints.length > 1 && <polyline className="aim-preview" points={trajectory.fullPoints.map(({ x, y }) => `${x},${y}`).join(' ')} />}
+            {trajectory.points.length > 1 && <polyline className="aim-direction" points={trajectory.points.map(({ x, y }) => `${x},${y}`).join(' ')} />}
+            {showAimGuide && trajectory.fullPoints.slice(1, -1).map((point, index) => <circle key={`bounce-${index}`} cx={point.x} cy={point.y} r="4" />)}
+            {showAimGuide && trajectory.fullPoints.length > 1 && <circle className="trajectory-end" cx={trajectory.fullPoints[trajectory.fullPoints.length - 1].x} cy={trajectory.fullPoints[trajectory.fullPoints.length - 1].y} r="5" />}
+            {showAimGuide && trajectory.candidates.slice(0, 1).map((candidate) => <circle key={`candidate-${candidate.row}-${candidate.col}`} className="landing-candidate preferred" cx={candidate.x} cy={candidate.y} r={Math.max(8, candidate.radius - 2)} />)}
           </svg>
           <div className="danger-line" />
           <div className="game-feedback"><span className="feedback-icon">✦</span>{message}</div>

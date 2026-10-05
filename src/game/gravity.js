@@ -34,11 +34,18 @@ export function liftLooseBubbles(board, { rows, cols }) {
     .filter((component) => !component.some(([row]) => row === 0))
     .forEach((component) => {
       const componentKeys = new Set(component.map(([row, col]) => key(row, col)))
+      let direction = 'left'
 
-      // Keep moving the whole component until the next row is blocked. This
-      // intentionally allows several consecutive upward moves in one turn.
+      // Move the component diagonally, alternating right-up and left-up.
+      // Column changes depend on row parity so the staggered shape translates
+      // as a whole instead of shearing apart while it moves upward.
       while (true) {
-        const shifted = component.map(([row, col]) => [row - 1, col])
+        const shifted = component.map(([row, col]) => {
+          const colDelta = direction === 'right'
+            ? (row % 2 === 0 ? 0 : 1)
+            : (row % 2 === 0 ? -1 : 0)
+          return [row - 1, col + colDelta]
+        })
         if (shifted.some(([row, col]) => row < 0 || col < 0 || col >= cols)) break
 
         const occupiedByOutside = shifted.some(([row, col]) => lifted[row]?.[col] && !componentKeys.has(key(row, col)))
@@ -50,6 +57,7 @@ export function liftLooseBubbles(board, { rows, cols }) {
         component.splice(0, component.length, ...shifted)
         componentKeys.clear()
         component.forEach(([row, col]) => componentKeys.add(key(row, col)))
+        direction = direction === 'right' ? 'left' : 'right'
       }
     })
 
