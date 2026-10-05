@@ -1505,19 +1505,6 @@ body {
     stroke-width: 2.5
 }
 
-.aim-trajectory .obstacle-highlight {
-    fill: #ffcb4530;
-    stroke: #e45c42;
-    stroke-width: 3;
-    stroke-dasharray: 7 4;
-    animation: obstacle-highlight-pulse 1s ease-in-out infinite
-}
-
-@keyframes obstacle-highlight-pulse {
-    0%, 100% { opacity: .65 }
-    50% { opacity: 1 }
-}
-
 .aim-trajectory .landing-candidate {
     fill: #59e6a844;
     stroke: #168957;
