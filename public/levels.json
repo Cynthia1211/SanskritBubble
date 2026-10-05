@@ -1,0 +1,34 @@
+{
+  "level_1": {
+    "level_title": "Level 1: Vowels - अ, इ, उ",
+    "bubble_pool": [
+      { "devanagari": "अ", "iast": "a", "audio": "/अ.wav", "description": "vowel" },
+      { "devanagari": "इ", "iast": "i", "audio": "/इ.wav", "description": "vowel" },
+      { "devanagari": "उ", "iast": "u", "audio": "/उ.wav", "description": "vowel" }
+    ]
+  },
+  "level_2": {
+    "level_title": "Level 2: Vowels - आ, ई, ऊ",
+    "bubble_pool": [
+      { "devanagari": "आ", "iast": "ā", "audio": "/आ.wav", "description": "vowel" },
+      { "devanagari": "ई", "iast": "ī", "audio": "/ई.wav", "description": "vowel" },
+      { "devanagari": "ऊ", "iast": "ū", "audio": "/ऊ.wav", "description": "vowel" }
+    ]
+  },
+  "level_3": {
+    "level_title": "Level 3: Vowels - ऋ, ए, ओ",
+    "bubble_pool": [
+      { "devanagari": "ऋ", "iast": "ṛ", "audio": "/test.wav", "description": "vowel" },
+      { "devanagari": "ए", "iast": "e", "audio": "/test.wav", "description": "vowel" },
+      { "devanagari": "ओ", "iast": "o", "audio": "/test.wav", "description": "vowel" }
+    ]
+  },
+  "level_10": {
+    "level_title": "Level 10: Words - Nature",
+    "bubble_pool": [
+      { "devanagari": "जल", "iast": "jala", "audio": "jala.mp3", "description": "water" },
+      { "devanagari": "गज", "iast": "gaja", "audio": "gaja.mp3", "description": "elephant" },
+      { "devanagari": "वन", "iast": "vana", "audio": "vana.mp3", "description": "forest" }
+    ]
+  }
+}
