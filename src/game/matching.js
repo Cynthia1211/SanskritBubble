@@ -1,11 +1,11 @@
-export function findConnectedGroup(board, row, col, iast) {
-  // Flood-fill only bubbles with the same transliteration as the fired bubble.
+export function findConnectedGroup(board, row, col, bubbleId) {
+  // Flood-fill only bubbles from the same pool item as the fired bubble.
   const found = new Set()
   const stack = [[row, col]]
   while (stack.length) {
     const [currentRow, currentCol] = stack.pop()
     const key = `${currentRow},${currentCol}`
-    if (found.has(key) || !board[currentRow]?.[currentCol] || board[currentRow][currentCol].iast !== iast) continue
+    if (found.has(key) || !board[currentRow]?.[currentCol] || board[currentRow][currentCol].id !== bubbleId) continue
     found.add(key)
     stack.push([currentRow, currentCol - 1], [currentRow, currentCol + 1])
     const adjacentCols = currentRow % 2 === 0 ? [currentCol - 1, currentCol] : [currentCol, currentCol + 1]

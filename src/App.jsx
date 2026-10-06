@@ -14,7 +14,7 @@ import { reviewProgress } from './utils/reviewProgress'
 const COLS = 14
 const ROWS = 10
 const AIM_STEP = 2
-const COLORS = ['coral', 'mint', 'lilac', 'gold', 'blue']
+const COLORS = ['coral', 'mint', 'gold', 'blue', 'lilac', 'teal', 'rose', 'orange', 'lime', 'violet']
 const SCORE_STORAGE_KEY = 'sanskrit-bubble-score'
 const LEVEL_COMPLETE_BONUS = 50
 const REVIEW_BONUS = 50
@@ -30,7 +30,6 @@ function App() {
   const [levelId, setLevelId] = useState('level_1')
   const [board, setBoard] = useState([])
   const [initialBubbleCount, setInitialBubbleCount] = useState(0)
-  const [shots, setShots] = useState(0)
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
   const [gameOver, setGameOver] = useState(false)
@@ -47,8 +46,8 @@ function App() {
   const hasBubbles = board.some((row) => row.some(Boolean))
   const [bubbleIndex, setBubbleIndex] = useState(0)
   const activePool = useMemo(() => {
-    const presentSounds = new Set(board.flat().filter(Boolean).map((bubble) => bubble.iast))
-    const available = pool.filter((item) => presentSounds.has(item.iast))
+    const presentSounds = new Set(board.flat().filter(Boolean).map((bubble) => bubble.id))
+    const available = pool.filter((item) => presentSounds.has(item.id))
     return available.length ? available : pool
   }, [board, pool])
   const current = hasBubbles && activePool.length ? activePool[bubbleIndex % activePool.length] : null
@@ -70,7 +69,6 @@ function App() {
     const freshBoard = liftLooseBubbles(createBoard(level, { rows: ROWS, cols: COLS }), { rows: ROWS, cols: COLS })
     setBoard(freshBoard)
     setInitialBubbleCount(freshBoard.flat().filter(Boolean).length)
-    setShots(0)
     setBubbleIndex(0)
     setGameOver(false)
     setLevelComplete(false)
@@ -90,21 +88,11 @@ function App() {
   const remainingBubbleCount = board.flat().filter(Boolean).length
   const progress = useMemo(() => initialBubbleCount ? Math.min(100, Math.max(0, (1 - remainingBubbleCount / initialBubbleCount) * 100)) : 0, [initialBubbleCount, remainingBubbleCount])
 
-  const pronounce = useCallback((text) => {
-    if (!text || !('speechSynthesis' in window)) return
-    window.speechSynthesis.cancel()
-    const utterance = new SpeechSynthesisUtterance(text)
-    utterance.lang = 'hi-IN'
-    utterance.rate = 0.78
-    window.speechSynthesis.speak(utterance)
-  }, [])
-
   const speak = useCallback((bubble) => {
-    if (bubble?.audio) {
-      const audio = new Audio(bubble.audio)
-      audio.play().catch(() => pronounce(bubble.iast))
-    } else pronounce(bubble?.iast)
-  }, [pronounce])
+    if (!bubble?.audio) return
+    const audio = new Audio(bubble.audio)
+    audio.play().catch(() => {})
+  }, [])
 
   const addScore = useCallback((amount) => {
     if (!amount) return
@@ -122,9 +110,10 @@ function App() {
   const reviewSound = useCallback((item) => {
     speak(item)
     setReviewedSounds((previous) => {
-      if (previous.has(item.iast)) return previous
+      const itemId = item.id ?? item.iast
+      if (previous.has(itemId)) return previous
       const updated = new Set(previous)
-      updated.add(item.iast)
+      updated.add(itemId)
       return updated
     })
   }, [speak])
@@ -168,11 +157,10 @@ function App() {
     const { row: targetRow, col: targetCol } = target
     nextBoard[targetRow][targetCol] = current
     setBoard(nextBoard)
-    setShots((value) => value + 1)
     setBubbleIndex((value) => value + 1)
     setMessage('')
     setTimeout(() => {
-      const found = findConnectedGroup(nextBoard, targetRow, targetCol, current.iast)
+      const found = findConnectedGroup(nextBoard, targetRow, targetCol, current.id)
       const cleared = found.size >= 3 ? found : new Set()
       const settledBoard = cleared.size ? clearBubbleGroup(nextBoard, cleared) : nextBoard
       if (cleared.size) {
@@ -237,12 +225,12 @@ function App() {
     <header className="topbar"><a className="brand" href="https://zatam2.vercel.app" aria-label="Home"><span className="brand-mark">🏠</span><span>zat.am</span></a><div className="top-note brand-script"><img src="/SanskritBubble_Logo.png" alt="Sanskrit Bubble" /></div><button className="icon-button" aria-label="Sound effects">♫</button></header>
     <section className="game-layout">
       <div className="game-column">
-        <div className="lesson-row"><div><div className="eyebrow">{levelId.replace('_', ' ').toUpperCase()}</div><h1>{level?.level_title?.replace(/^Lesson \d+: /, '') || 'Sanskrit vowels'}</h1></div><div className="title-progress"><div className="progress-head"><span>LEVEL PROGRESS</span><span>{Math.round(progress)}%</span></div><div className="progress-track"><span style={{ width: `${progress}%` }} /></div></div><div className="title-stats"><div><span className="stat-label">SCORE</span><strong key={score} className="score-value">{String(score).padStart(4, '0')}</strong></div><div><span className="stat-label">SHOTS</span><strong>{String(shots).padStart(2, '0')}</strong></div></div></div>
+        <div className="lesson-row"><div><div className="eyebrow">{levelId.replace('_', ' ').toUpperCase()}</div><h1>{level?.level_title?.replace(/^Lesson \d+: /, '') || 'Sanskrit vowels'}</h1></div><div className="title-progress"><div className="progress-head"><span>LEVEL PROGRESS</span><span>{Math.round(progress)}%</span></div><div className="progress-track"><span style={{ width: `${progress}%` }} /></div></div><div className="title-stats"><div><span className="stat-label">SCORE</span><strong key={score} className="score-value">{String(score).padStart(4, '0')}</strong></div></div></div>
         <div className="playfield" ref={playfieldRef}>
           <div className="field-glow" />
           <div className="field-top"><span><i /> CLEAR ALL THE BUBBLES</span><span>LEVEL {Object.keys(levels).indexOf(levelId) + 1} / {Object.keys(levels).length}</span></div>
           <div className="bubble-grid" style={{ '--cols': COLS }}>
-            {board.map((row, r) => <div className={`bubble-grid-row ${r % 2 ? 'offset-row' : ''}`} key={`row-${r}`}>{row.map((bubble, c) => <div key={`${r}-${c}`} data-row={r} data-col={c} className={`bubble-cell ${bubble ? `bubble ${COLORS[pool.findIndex((item) => item.iast === bubble.iast) % COLORS.length]}` : 'empty'}`} aria-label={bubble?.devanagari}>
+            {board.map((row, r) => <div className={`bubble-grid-row ${r % 2 ? 'offset-row' : ''}`} key={`row-${r}`}>{row.map((bubble, c) => <div key={`${r}-${c}`} data-row={r} data-col={c} className={`bubble-cell ${bubble ? `bubble ${COLORS[pool.findIndex((item) => item.id === bubble.id) % COLORS.length]}` : 'empty'}`} aria-label={bubble?.devanagari}>
               {bubble && <span className="devanagari" style={{ fontSize: fitBubbleFont(bubble.devanagari, 25, 12) }}>{bubble.devanagari}</span>}
             </div>)}</div>)}
           </div>
@@ -255,7 +243,7 @@ function App() {
           </svg>
           <div className="danger-line" />
           <div className="game-feedback"><span className="feedback-icon">✦</span>{message}</div>
-          <div className="shooter-area"><div className="next-bubble"><small>NEXT</small>{next && <div className={`bubble mini ${COLORS[pool.findIndex((item) => item.iast === next.iast) % COLORS.length]}`}><span className="translit" style={{ fontSize: fitBubbleFont(next.iast, 12, 7) }}>{next.iast}</span></div>}</div><div className="shooter">{current && <div className={`bubble loaded ${COLORS[pool.findIndex((item) => item.iast === current.iast) % COLORS.length]}`}><span className="translit" style={{ fontSize: fitBubbleFont(current.iast, 17, 9) }}>{current.iast}</span></div>}</div><div className="shoot-hint"><span className="keycap">←</span> <span className="keycap">→</span> AIM &nbsp; <span className="keycap space-key">SPACE</span> FIRE</div></div>
+          <div className="shooter-area"><div className="next-bubble"><small>NEXT</small>{next && <div className={`bubble mini ${COLORS[pool.findIndex((item) => item.id === next.id) % COLORS.length]}`}><span className="translit" style={{ fontSize: fitBubbleFont(next.iast, 12, 7) }}>{next.iast}</span></div>}</div><div className="shooter">{current && <div className={`bubble loaded ${COLORS[pool.findIndex((item) => item.id === current.id) % COLORS.length]}`}><span className="translit" style={{ fontSize: fitBubbleFont(current.iast, 17, 9) }}>{current.iast}</span></div>}</div><div className="shoot-hint"><span className="keycap">←</span> <span className="keycap">→</span> AIM &nbsp; <span className="keycap space-key">SPACE</span> FIRE</div></div>
           <div className="field-floor" />
         </div>
         {gameOver && <div className="level-complete-overlay"><section className="level-complete-modal game-over-modal" role="dialog" aria-modal="true" aria-labelledby="game-over-title">
@@ -263,7 +251,7 @@ function App() {
           <p className="completion-eyebrow">KEEP GOING</p>
           <h2 id="game-over-title">You've got this!</h2>
           <p className="completion-description">That was close. Take a breath and try again—you can do it!</p>
-          <div className="completion-word-list">{pool.map((item, index) => <div className="completion-word" key={`retry-${levelId}-${item.iast}`}>
+          <div className="completion-word-list">{pool.map((item, index) => <div className="completion-word" key={`retry-${levelId}-${item.id ?? item.iast}`}>
             <span className={`sound-glyph ${COLORS[index % COLORS.length]}`}>{item.devanagari}</span>
             <span className="completion-word-text"><strong>{item.iast}</strong><small>{item.description ?? item.meaning ?? ''}</small></span>
             <button className="completion-play" aria-label={`Play ${item.iast}`} onClick={() => speak(item)}>▶</button>

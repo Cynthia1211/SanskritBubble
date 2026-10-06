@@ -1044,8 +1044,8 @@ body {
 }
 
 .title-progress {
-    width: 240px;
-    flex: 0 0 240px;
+    width: 216px;
+    flex: 0 0 216px;
     margin-left: auto;
     margin-right: 28px
 }
@@ -1142,7 +1142,10 @@ body {
 }
 
 .sound-list {
-    gap: 10px
+    gap: 10px;
+    height: 340px;
+    overflow-y: auto;
+    align-content: start
 }
 
 .sound-item {
@@ -1182,6 +1185,52 @@ body {
 
 .sound-glyph.blue {
     background: #91dfff
+}
+
+/* Extra palette options for larger levels. */
+.teal {
+    --bubble-color: #8de3dc;
+    --bubble-shadow: #42b8b0
+}
+
+.rose {
+    --bubble-color: #f3a6c8;
+    --bubble-shadow: #d66c9d
+}
+
+.violet {
+    --bubble-color: #c6b3f2;
+    --bubble-shadow: #9275d1
+}
+
+.orange {
+    --bubble-color: #f6bd83;
+    --bubble-shadow: #df8743
+}
+
+.lime {
+    --bubble-color: #c4e58b;
+    --bubble-shadow: #8ebd4d
+}
+
+.sound-glyph.teal {
+    background: #8de3dc
+}
+
+.sound-glyph.rose {
+    background: #f3a6c8
+}
+
+.sound-glyph.violet {
+    background: #c6b3f2
+}
+
+.sound-glyph.orange {
+    background: #f6bd83
+}
+
+.sound-glyph.lime {
+    background: #c4e58b
 }
 
 .sound-word strong {
@@ -1941,8 +1990,8 @@ body {
     }
 
     .title-progress {
-        width: 180px;
-        flex-basis: 180px;
+        width: 162px;
+        flex-basis: 162px;
         margin-right: 12px
     }
 
@@ -1950,3 +1999,26 @@ body {
         padding: 5px 0
     }
 }
+
+/* High-contrast palette for randomly placed bubbles and sound cards. */
+.coral { --bubble-color: #ff9f91; --bubble-shadow: #ff6f75 }
+.mint { --bubble-color: #8af0b2; --bubble-shadow: #42d98b }
+.lilac { --bubble-color: #d7b8ff; --bubble-shadow: #a477f0 }
+.gold { --bubble-color: #ffe680; --bubble-shadow: #ffc43d }
+.blue { --bubble-color: #8bdcff; --bubble-shadow: #4db4f0 }
+.teal { --bubble-color: #78eee7; --bubble-shadow: #28c9c4 }
+.rose { --bubble-color: #ffb0d0; --bubble-shadow: #f178ab }
+.violet { --bubble-color: #8AA9FF; --bubble-shadow: #5E7DE6 }
+.orange { --bubble-color: #ffd09a; --bubble-shadow: #ff9b4a }
+.lime { --bubble-color: #d8f58c; --bubble-shadow: #9edb4f }
+
+.sound-glyph.coral { background: #ff9f91 }
+.sound-glyph.mint { background: #8af0b2 }
+.sound-glyph.lilac { background: #d7b8ff }
+.sound-glyph.gold { background: #ffe680 }
+.sound-glyph.blue { background: #8bdcff }
+.sound-glyph.teal { background: #78eee7 }
+.sound-glyph.rose { background: #ffb0d0 }
+.sound-glyph.violet { background: #8AA9FF }
+.sound-glyph.orange { background: #ffd09a }
+.sound-glyph.lime { background: #d8f58c }
