@@ -207,7 +207,18 @@ function App() {
           <div className="shooter-area"><div className="next-bubble"><small>NEXT</small>{next && <div className={`bubble mini ${COLORS[pool.findIndex((item) => item.iast === next.iast) % COLORS.length]}`}><span className="translit" style={{ fontSize: fitBubbleFont(next.iast, 12, 7) }}>{next.iast}</span></div>}</div><div className="shooter">{current && <div className={`bubble loaded ${COLORS[pool.findIndex((item) => item.iast === current.iast) % COLORS.length]}`}><span className="translit" style={{ fontSize: fitBubbleFont(current.iast, 17, 9) }}>{current.iast}</span></div>}</div><div className="shoot-hint"><span className="keycap">←</span> <span className="keycap">→</span> AIM &nbsp; <span className="keycap space-key">SPACE</span> FIRE</div></div>
           <div className="field-floor" />
         </div>
-        {gameOver && <div className="game-over"><strong>OH NO!</strong><span>The bubble pile crossed the danger line.</span><button onClick={resetGame}>Play again</button></div>}
+        {gameOver && <div className="level-complete-overlay"><section className="level-complete-modal game-over-modal" role="dialog" aria-modal="true" aria-labelledby="game-over-title">
+          <div className="completion-sparkle">✦</div>
+          <p className="completion-eyebrow">KEEP GOING</p>
+          <h2 id="game-over-title">You've got this!</h2>
+          <p className="completion-description">That was close. Take a breath and try again—you can do it!</p>
+          <div className="completion-word-list">{pool.map((item, index) => <div className="completion-word" key={`retry-${levelId}-${item.iast}`}>
+            <span className={`sound-glyph ${COLORS[index % COLORS.length]}`}>{item.devanagari}</span>
+            <span className="completion-word-text"><strong>{item.iast}</strong><small>{item.description ?? item.meaning ?? ''}</small></span>
+            <button className="completion-play" aria-label={`Play ${item.iast}`} onClick={() => speak(item)}>▶</button>
+          </div>)}</div>
+          <button className="completion-continue" onClick={resetGame}>PLAY AGAIN</button>
+        </section></div>}
         {levelComplete && <div className="level-complete-overlay"><section className="level-complete-modal" role="dialog" aria-modal="true" aria-labelledby="completion-title">
           <div className="completion-sparkle">✦</div>
           <p className="completion-eyebrow">LEVEL COMPLETE</p>

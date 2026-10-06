@@ -1586,6 +1586,10 @@ body {
     color: #29334a
 }
 
+.game-over-modal .completion-sparkle {
+    color: #ed6a53
+}
+
 .level-complete-overlay {
     position: fixed;
     inset: 0;
