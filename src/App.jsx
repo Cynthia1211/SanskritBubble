@@ -19,9 +19,9 @@ const SCORE_STORAGE_KEY = 'sanskrit-bubble-score'
 const LEVEL_COMPLETE_BONUS = 50
 const REVIEW_BONUS = 50
 
-// Keep the running score between levels and page reloads.
+// Keep the running score between levels and page reloads in this browser tab.
 function readStoredScore() {
-  const stored = Number(window.localStorage.getItem(SCORE_STORAGE_KEY))
+  const stored = Number(window.sessionStorage.getItem(SCORE_STORAGE_KEY))
   return Number.isFinite(stored) && stored > 0 ? stored : 0
 }
 
@@ -108,7 +108,7 @@ function App() {
 
   // Persist the score so it keeps growing across levels and page reloads.
   useEffect(() => {
-    window.localStorage.setItem(SCORE_STORAGE_KEY, String(score))
+    window.sessionStorage.setItem(SCORE_STORAGE_KEY, String(score))
   }, [score])
 
   const { complete: allSoundsReviewed } = reviewProgress(pool, reviewedSounds)
