@@ -4,7 +4,9 @@
     "bubble_pool": [
       { "devanagari": "अ", "iast": "a", "audio": "/अ.wav", "description": "vowel" },
       { "devanagari": "इ", "iast": "i", "audio": "/इ.wav", "description": "vowel" },
-      { "devanagari": "उ", "iast": "u", "audio": "/उ.wav", "description": "vowel" }
+      { "devanagari": "उ", "iast": "u", "audio": "/उ.wav", "description": "vowel" },
+      { "devanagari": "ई", "iast": "ī", "audio": "/ई.wav", "description": "vowel" },
+      { "devanagari": "ऊ", "iast": "ū", "audio": "/ऊ.wav", "description": "vowel" }
     ]
   },
   "level_2": {

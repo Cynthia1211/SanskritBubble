@@ -8,11 +8,22 @@ import { createBoard } from './game/board'
 import { useKeyboardAim } from './hooks/useKeyboardAim'
 import { fetchLevels } from './services/levelService'
 import { fitBubbleFont } from './utils/bubbleText'
+import { LevelReviewCard } from './components/LevelReviewCard'
+import { reviewProgress } from './utils/reviewProgress'
 
 const COLS = 14
 const ROWS = 10
 const AIM_STEP = 2
 const COLORS = ['coral', 'mint', 'lilac', 'gold', 'blue']
+const SCORE_STORAGE_KEY = 'sanskrit-bubble-score'
+const LEVEL_COMPLETE_BONUS = 50
+const REVIEW_BONUS = 50
+
+// Keep the running score between levels and page reloads.
+function readStoredScore() {
+  const stored = Number(window.localStorage.getItem(SCORE_STORAGE_KEY))
+  return Number.isFinite(stored) && stored > 0 ? stored : 0
+}
 
 function App() {
   const [levels, setLevels] = useState(null)
@@ -24,6 +35,9 @@ function App() {
   const [busy, setBusy] = useState(false)
   const [gameOver, setGameOver] = useState(false)
   const [levelComplete, setLevelComplete] = useState(false)
+  const [score, setScore] = useState(readStoredScore)
+  const [reviewedSounds, setReviewedSounds] = useState(() => new Set())
+  const [reviewBonusAwarded, setReviewBonusAwarded] = useState(false)
   const [aimAngle, setAimAngle] = useState(0)
   const [trajectory, setTrajectory] = useState({ width: 0, height: 0, points: [], fullPoints: [], candidates: [] })
   const playfieldRef = useRef(null)
@@ -60,6 +74,8 @@ function App() {
     setBubbleIndex(0)
     setGameOver(false)
     setLevelComplete(false)
+    setReviewedSounds(new Set())
+    setReviewBonusAwarded(false)
     setMessage('Aim with ← → and press SPACE to pop!')
   }, [level])
 
@@ -90,10 +106,44 @@ function App() {
     } else pronounce(bubble?.iast)
   }, [pronounce])
 
+  const addScore = useCallback((amount) => {
+    if (!amount) return
+    setScore((value) => value + amount)
+  }, [])
+
+  // Persist the score so it keeps growing across levels and page reloads.
+  useEffect(() => {
+    window.localStorage.setItem(SCORE_STORAGE_KEY, String(score))
+  }, [score])
+
+  const { complete: allSoundsReviewed } = reviewProgress(pool, reviewedSounds)
+
+  // Play one sound of the completed level and remember that it was reviewed.
+  const reviewSound = useCallback((item) => {
+    speak(item)
+    setReviewedSounds((previous) => {
+      if (previous.has(item.iast)) return previous
+      const updated = new Set(previous)
+      updated.add(item.iast)
+      return updated
+    })
+  }, [speak])
+
+  // Award the listening bonus once, as soon as every sound of the level has been played.
+  useEffect(() => {
+    if (!levelComplete || reviewBonusAwarded || !allSoundsReviewed) return
+    /* eslint-disable react-hooks/set-state-in-effect */
+    setReviewBonusAwarded(true)
+    addScore(REVIEW_BONUS)
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [addScore, allSoundsReviewed, levelComplete, reviewBonusAwarded])
+
   const levelIds = Object.keys(levels ?? {})
   const nextLevelId = levelIds[levelIds.indexOf(levelId) + 1]
   const continueAfterLevel = () => {
     setLevelComplete(false)
+    setReviewedSounds(new Set())
+    setReviewBonusAwarded(false)
     if (nextLevelId) setLevelId(nextLevelId)
     else setMessage('You completed all the lessons!')
   }
@@ -143,12 +193,13 @@ function App() {
         setMessage('Bubble pile reached the danger line!')
       } else if (!liftedBoard.some((row) => row.some(Boolean))) {
         setLevelComplete(true)
-        setMessage('Congratulations! Level cleared!')
+        addScore(LEVEL_COMPLETE_BONUS)
+        setMessage(`Level cleared! +${LEVEL_COMPLETE_BONUS} points!`)
       }
       setBoard(liftedBoard)
       setBusy(false)
     }, 500)
-  }, [aimAngle, board, busy, current, gameOver, getPlacementCandidates, levelComplete, speak, traceShot])
+  }, [addScore, aimAngle, board, busy, current, gameOver, getPlacementCandidates, levelComplete, speak, traceShot])
 
   useKeyboardAim({ onShoot: shoot, setAimAngle, step: AIM_STEP })
 
@@ -186,7 +237,7 @@ function App() {
     <header className="topbar"><a className="brand" href="https://zatam2.vercel.app" aria-label="Home"><span className="brand-mark">🏠</span><span>zat.am</span></a><div className="top-note brand-script"><img src="/SanskritBubble_Logo.png" alt="Sanskrit Bubble" /></div><button className="icon-button" aria-label="Sound effects">♫</button></header>
     <section className="game-layout">
       <div className="game-column">
-        <div className="lesson-row"><div><div className="eyebrow">{levelId.replace('_', ' ').toUpperCase()}</div><h1>{level?.level_title?.replace(/^Lesson \d+: /, '') || 'Sanskrit vowels'}</h1></div><div className="title-progress"><div className="progress-head"><span>LEVEL PROGRESS</span><span>{Math.round(progress)}%</span></div><div className="progress-track"><span style={{ width: `${progress}%` }} /></div></div><div className="title-stats"><div><span className="stat-label">SCORE</span><strong>0000</strong></div><div><span className="stat-label">SHOTS</span><strong>{String(shots).padStart(2, '0')}</strong></div></div></div>
+        <div className="lesson-row"><div><div className="eyebrow">{levelId.replace('_', ' ').toUpperCase()}</div><h1>{level?.level_title?.replace(/^Lesson \d+: /, '') || 'Sanskrit vowels'}</h1></div><div className="title-progress"><div className="progress-head"><span>LEVEL PROGRESS</span><span>{Math.round(progress)}%</span></div><div className="progress-track"><span style={{ width: `${progress}%` }} /></div></div><div className="title-stats"><div><span className="stat-label">SCORE</span><strong key={score} className="score-value">{String(score).padStart(4, '0')}</strong></div><div><span className="stat-label">SHOTS</span><strong>{String(shots).padStart(2, '0')}</strong></div></div></div>
         <div className="playfield" ref={playfieldRef}>
           <div className="field-glow" />
           <div className="field-top"><span><i /> CLEAR ALL THE BUBBLES</span><span>LEVEL {Object.keys(levels).indexOf(levelId) + 1} / {Object.keys(levels).length}</span></div>
@@ -223,12 +274,8 @@ function App() {
           <div className="completion-sparkle">✦</div>
           <p className="completion-eyebrow">LEVEL COMPLETE</p>
           <h2 id="completion-title">Congratulations!</h2>
-          <p className="completion-description">Review this level's sounds before you continue.</p>
-          <div className="completion-word-list">{pool.map((item, index) => <div className="completion-word" key={`${levelId}-${item.iast}`}>
-            <span className={`sound-glyph ${COLORS[index % COLORS.length]}`}>{item.devanagari}</span>
-            <span className="completion-word-text"><strong>{item.iast}</strong><small>{item.description ?? item.meaning ?? ''}</small></span>
-            <button className="completion-play" aria-label={`Play ${item.iast}`} onClick={() => speak(item)}>▶</button>
-          </div>)}</div>
+          <p className="completion-description">Level cleared! <strong className="bonus-score">+{LEVEL_COMPLETE_BONUS}</strong> points added to your score.</p>
+          <LevelReviewCard pool={pool} levelId={levelId} reviewedSounds={reviewedSounds} reviewSound={reviewSound} reviewBonus={REVIEW_BONUS} />
           <button className="completion-continue" onClick={continueAfterLevel}>{nextLevelId ? 'Continue' : 'Finish'}</button>
         </section></div>}
         <div className="under-field"><span>✧&nbsp; Match 3 connected sounds to pop them!</span><button onClick={resetGame}>Restart <span>↻</span></button></div>

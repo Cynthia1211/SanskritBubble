@@ -1096,6 +1096,23 @@ body {
     color: #29334a
 }
 
+.title-stats strong.score-value {
+    display: inline-block;
+    animation: score-pop .55s ease
+}
+
+@keyframes score-pop {
+    0% {
+        transform: scale(1.45);
+        color: #e5871b
+    }
+
+    100% {
+        transform: scale(1);
+        color: #29334a
+    }
+}
+
 .lesson-card {
     border: 3px solid #29334a;
     border-radius: 17px;
@@ -1640,10 +1657,99 @@ body {
     font-size: 13px
 }
 
+.completion-description .bonus-score {
+    color: #c07a12;
+    font-size: 17px
+}
+
+.completion-review-hint {
+    display: block;
+    margin: -8px 0 10px;
+    padding: 11px 13px;
+    border: 2px dashed #ffd35e;
+    border-radius: 14px;
+    background: #fff3d6;
+    color: #6b5a2e;
+    font-size: 12.5px;
+    font-weight: 800;
+    line-height: 1.45
+}
+
+.completion-review-hint strong {
+    color: #c07a12;
+    font-size: 14px
+}
+
+/* One pip per sound of the level, so the bar scales with any word count. */
+.completion-review-progress {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 7px
+}
+
+.review-pip {
+    flex: 1 1 0;
+    min-width: 8px;
+    height: 9px;
+    border: 2px solid #e6cd93;
+    border-radius: 999px;
+    background: #fff;
+    transition: background .2s ease,border-color .2s ease
+}
+
+.review-pip.filled {
+    border-color: #21684a;
+    background: #6dc39a
+}
+
+.completion-review-count {
+    margin: 0 0 14px;
+    color: #8b7a4e;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .1em;
+    text-transform: uppercase
+}
+
+.completion-review-count strong {
+    color: #c07a12;
+    font-size: 14px;
+    letter-spacing: 0
+}
+
+.completion-review-hint.completed {
+    border-color: #6dc39a;
+    border-style: solid;
+    background: #e6f7ef;
+    color: #23684b
+}
+
+.completion-review-hint.completed strong {
+    color: #1f7a52
+}
+
+.completion-review-hint.completed+.completion-review-progress .review-pip {
+    border-color: #21684a;
+    background: #6dc39a
+}
+
+.completion-review-hint.completed+.completion-review-progress+.completion-review-count, .completion-review-hint.completed+.completion-review-progress+.completion-review-count strong {
+    color: #1f7a52
+}
+
 .completion-word-list {
     display: grid;
     gap: 8px;
     text-align: left
+}
+
+/* Levels with more sounds automatically widen the modal and use two columns. */
+.level-complete-modal:has(.completion-word:nth-child(n+5)) {
+    width: min(100%, 580px)
+}
+
+.level-complete-modal:has(.completion-word:nth-child(n+5)) .completion-word-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr))
 }
 
 .completion-word {
@@ -1691,6 +1797,18 @@ body {
     font-size: 12px
 }
 
+.completion-word:has(.completion-play.played) {
+    border-color: #6dc39a;
+    background: #f2fbf6
+}
+
+.completion-play.played {
+    border-color: #21684a;
+    background: #6dc39a;
+    color: #fff;
+    font-size: 14px
+}
+
 .completion-continue {
     width: 100%;
     margin-top: 18px;
@@ -1711,6 +1829,18 @@ body {
 
     .level-complete-modal h2 {
         font-size: 26px
+    }
+
+    .level-complete-modal:has(.completion-word:nth-child(n+5)) {
+        width: min(100%, 440px)
+    }
+
+    .level-complete-modal:has(.completion-word:nth-child(n+5)) .completion-word-list {
+        grid-template-columns: 1fr
+    }
+
+    .review-pip {
+        min-width: 5px
     }
 }
 
