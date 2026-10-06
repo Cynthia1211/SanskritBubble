@@ -60,8 +60,14 @@ function App() {
   const current = hasBubbles && activePool.length ? activePool[bubbleIndex % activePool.length] : null
   const next = hasBubbles && activePool.length ? activePool[(bubbleIndex + 1) % activePool.length] : null
   const soundGlyphWidth = useMemo(() => {
-    const longest = Math.max(1, ...pool.map((item) => Array.from(item.devanagari).length))
-    return `${Math.max(39, longest * 22 + 8)}px`
+    const segmenter = typeof Intl.Segmenter === 'function'
+      ? new Intl.Segmenter('hi', { granularity: 'grapheme' })
+      : null
+    const countVisualUnits = (text) => segmenter
+      ? Array.from(segmenter.segment(text)).length
+      : Array.from(text).length
+    const longest = Math.max(1, ...pool.map((item) => countVisualUnits(item.devanagari)))
+    return `${Math.min(90, Math.max(50, longest * 10 + 5))}px`
   }, [pool])
 
   useEffect(() => {
@@ -250,7 +256,7 @@ function App() {
           </svg>
           <div className="danger-line" />
           <div className="game-feedback"><span className="feedback-icon">✦</span>{message}</div>
-          <div className="shooter-area"><div className="next-bubble"><small>NEXT</small>{next && <div className={`bubble mini ${colorOrder[pool.findIndex((item) => item.id === next.id) % colorOrder.length]}`}><span className="translit" style={{ fontSize: fitBubbleFont(next.iast, 12, 7) }}>{next.iast}</span></div>}</div><div className="shooter">{current && <div className={`bubble loaded ${colorOrder[pool.findIndex((item) => item.id === current.id) % colorOrder.length]}`}><span className="translit" style={{ fontSize: fitBubbleFont(current.iast, 17, 9) }}>{current.iast}</span></div>}</div><div className="shoot-hint"><span className="keycap">←</span> <span className="keycap">→</span> AIM &nbsp; <span className="keycap space-key">SPACE</span> FIRE</div></div>
+          <div className="shooter-area"><div className="next-bubble"><small>NEXT</small>{next && <div className={`bubble mini ${colorOrder[pool.findIndex((item) => item.id === next.id) % colorOrder.length]}`}><span className="translit" style={{ fontSize: fitBubbleFont(next.iast, 16, 10) }}>{next.iast}</span></div>}</div><div className="shooter">{current && <div className={`bubble loaded ${colorOrder[pool.findIndex((item) => item.id === current.id) % colorOrder.length]}`}><span className="translit" style={{ fontSize: fitBubbleFont(current.iast, 22, 18) }}>{current.iast}</span></div>}</div><div className="shoot-hint"><span className="keycap">←</span> <span className="keycap">→</span> AIM &nbsp; <span className="keycap space-key">SPACE</span> FIRE</div></div>
           <div className="field-floor" />
         </div>
         {gameOver && <div className="level-complete-overlay"><section className="level-complete-modal game-over-modal" role="dialog" aria-modal="true" aria-labelledby="game-over-title">
@@ -275,7 +281,7 @@ function App() {
         </section></div>}
         <div className="under-field"><span>✧&nbsp; Match 3 connected sounds to pop them!</span><button onClick={resetGame}>Restart <span>↻</span></button></div>
       </div>
-      <div className="side-column"><label className="side-level-select"><select value={levelId} onChange={(event) => setLevelId(event.target.value)}>{Object.entries(levels).map(([id, item]) => <option key={id} value={id}>{item.level_title}</option>)}</select></label><aside className="lesson-card"><div className="card-head"><div className="eyebrow">TODAY'S SOUNDS</div></div><p className="card-description">Listen, learn, and match the Sanskrit sounds.</p><div className="sound-list">{pool.map((item, i) => <button className="sound-item" key={`${levelId}-${i}-${item.iast}`} onClick={() => speak(item)}><span className={`sound-glyph ${colorOrder[i % colorOrder.length]}`} style={{ width: soundGlyphWidth, fontSize: fitBubbleFont(item.devanagari, 22, 12) }}>{item.devanagari}</span><span className="sound-word"><strong>{item.iast}</strong><small>{item.description ?? item.meaning ?? ''}</small></span><span className="play-icon">▶</span></button>)}</div><div className="tip-box"><span>✧</span><p><strong>Sound tip</strong><br />Tap a sound to hear it. Try saying it out loud!</p></div></aside></div>
+      <div className="side-column"><label className="side-level-select"><select value={levelId} onChange={(event) => setLevelId(event.target.value)}>{Object.entries(levels).map(([id, item], index) => <option key={id} value={id}>{`LEVEL ${index + 1}: ${item.level_title}`}</option>)}</select></label><aside className="lesson-card"><div className="card-head"><div className="eyebrow">SOUNDS IN THIS LEVEL</div></div><p className="card-description">Listen, learn, and match the Sanskrit sounds.</p><div className="sound-list">{pool.map((item, i) => <button className="sound-item" key={`${levelId}-${i}-${item.iast}`} onClick={() => speak(item)}><span className={`sound-glyph ${colorOrder[i % colorOrder.length]}`} style={{ width: soundGlyphWidth, fontSize: fitBubbleFont(item.devanagari, 22, 12) }}>{item.devanagari}</span><span className="sound-word"><strong>{item.iast}</strong><small>{item.description ?? item.meaning ?? ''}</small></span><span className="play-icon">▶</span></button>)}</div><div className="tip-box"><span>✧</span><p><strong>Sound tip</strong><br />Tap a sound to hear it. Try saying it out loud!</p></div></aside></div>
     </section>
     <footer className="app-footer"><span>Start with a sound. Discover an ancient script.</span><span>शुभम्&nbsp; ✦ &nbsp;Happy learning</span></footer>
   </main>
