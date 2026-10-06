@@ -1096,6 +1096,23 @@ body {
     color: #29334a
 }
 
+.title-stats strong.score-value {
+    display: inline-block;
+    animation: score-pop .55s ease
+}
+
+@keyframes score-pop {
+    0% {
+        transform: scale(1.45);
+        color: #e5871b
+    }
+
+    100% {
+        transform: scale(1);
+        color: #29334a
+    }
+}
+
 .lesson-card {
     border: 3px solid #29334a;
     border-radius: 17px;
@@ -1416,7 +1433,7 @@ body {
     position: absolute;
     top: 54px;
     left: 0;
-    transform: none;
+    transform: translateX(-15px);
     width: 100%;
     max-width: none;
     margin: 0;
@@ -1584,6 +1601,247 @@ body {
     box-shadow: 2px 3px #29334a;
     font-weight: 900;
     color: #29334a
+}
+
+.game-over-modal .completion-sparkle {
+    color: #ed6a53
+}
+
+.level-complete-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: #1c2a3db8;
+    backdrop-filter: blur(5px)
+}
+
+.level-complete-modal {
+    width: min(100%, 440px);
+    max-height: min(88vh, 720px);
+    overflow-y: auto;
+    padding: 28px;
+    border: 3px solid #29334a;
+    border-radius: 24px;
+    background: #fff8e8;
+    box-shadow: 6px 7px 0 #29334a;
+    color: #29334a;
+    text-align: center
+}
+
+.completion-sparkle {
+    color: #f3a92b;
+    font-size: 32px;
+    line-height: 1
+}
+
+.completion-eyebrow {
+    margin: 10px 0 4px;
+    color: #50748c;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .14em
+}
+
+.level-complete-modal h2 {
+    margin: 0;
+    font-size: 30px;
+    font-weight: 900
+}
+
+.completion-description {
+    margin: 7px 0 18px;
+    color: #59647d;
+    font-size: 13px
+}
+
+.completion-description .bonus-score {
+    color: #c07a12;
+    font-size: 17px
+}
+
+.completion-review-hint {
+    display: block;
+    margin: -8px 0 10px;
+    padding: 11px 13px;
+    border: 2px dashed #ffd35e;
+    border-radius: 14px;
+    background: #fff3d6;
+    color: #6b5a2e;
+    font-size: 12.5px;
+    font-weight: 800;
+    line-height: 1.45
+}
+
+.completion-review-hint strong {
+    color: #c07a12;
+    font-size: 14px
+}
+
+/* One pip per sound of the level, so the bar scales with any word count. */
+.completion-review-progress {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 7px
+}
+
+.review-pip {
+    flex: 1 1 0;
+    min-width: 8px;
+    height: 9px;
+    border: 2px solid #e6cd93;
+    border-radius: 999px;
+    background: #fff;
+    transition: background .2s ease,border-color .2s ease
+}
+
+.review-pip.filled {
+    border-color: #21684a;
+    background: #6dc39a
+}
+
+.completion-review-count {
+    margin: 0 0 14px;
+    color: #8b7a4e;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .1em;
+    text-transform: uppercase
+}
+
+.completion-review-count strong {
+    color: #c07a12;
+    font-size: 14px;
+    letter-spacing: 0
+}
+
+.completion-review-hint.completed {
+    border-color: #6dc39a;
+    border-style: solid;
+    background: #e6f7ef;
+    color: #23684b
+}
+
+.completion-review-hint.completed strong {
+    color: #1f7a52
+}
+
+.completion-review-hint.completed+.completion-review-progress .review-pip {
+    border-color: #21684a;
+    background: #6dc39a
+}
+
+.completion-review-hint.completed+.completion-review-progress+.completion-review-count, .completion-review-hint.completed+.completion-review-progress+.completion-review-count strong {
+    color: #1f7a52
+}
+
+.completion-word-list {
+    display: grid;
+    gap: 8px;
+    text-align: left
+}
+
+/* Levels with more sounds automatically widen the modal and use two columns. */
+.level-complete-modal:has(.completion-word:nth-child(n+5)) {
+    width: min(100%, 580px)
+}
+
+.level-complete-modal:has(.completion-word:nth-child(n+5)) .completion-word-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr))
+}
+
+.completion-word {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 11px;
+    border: 2px solid #dce7e7;
+    border-radius: 14px;
+    background: #fff
+}
+
+.completion-word .sound-glyph {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    justify-content: center;
+    border: 2px solid #29334a;
+    border-radius: 13px;
+    font-size: 23px
+}
+
+.completion-word-text {
+    display: grid;
+    flex: 1;
+    gap: 2px
+}
+
+.completion-word-text strong {
+    font-size: 15px
+}
+
+.completion-word-text small {
+    color: #738095;
+    font-size: 11px
+}
+
+.completion-play {
+    width: 34px;
+    height: 34px;
+    border: 2px solid #29334a;
+    border-radius: 50%;
+    background: #b9edff;
+    color: #29334a;
+    font-size: 12px
+}
+
+.completion-word:has(.completion-play.played) {
+    border-color: #6dc39a;
+    background: #f2fbf6
+}
+
+.completion-play.played {
+    border-color: #21684a;
+    background: #6dc39a;
+    color: #fff;
+    font-size: 14px
+}
+
+.completion-continue {
+    width: 100%;
+    margin-top: 18px;
+    padding: 12px 18px;
+    border: 2px solid #29334a;
+    border-radius: 13px;
+    background: #ffcb45;
+    box-shadow: 3px 4px 0 #29334a;
+    color: #29334a;
+    font-size: 15px;
+    font-weight: 900
+}
+
+@media(max-width:650px) {
+    .level-complete-modal {
+        padding: 22px 18px
+    }
+
+    .level-complete-modal h2 {
+        font-size: 26px
+    }
+
+    .level-complete-modal:has(.completion-word:nth-child(n+5)) {
+        width: min(100%, 440px)
+    }
+
+    .level-complete-modal:has(.completion-word:nth-child(n+5)) .completion-word-list {
+        grid-template-columns: 1fr
+    }
+
+    .review-pip {
+        min-width: 5px
+    }
 }
 
 .bubble-grid {

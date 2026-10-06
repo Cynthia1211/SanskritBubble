@@ -8,11 +8,22 @@ import { createBoard } from './game/board'
 import { useKeyboardAim } from './hooks/useKeyboardAim'
 import { fetchLevels } from './services/levelService'
 import { fitBubbleFont } from './utils/bubbleText'
+import { LevelReviewCard } from './components/LevelReviewCard'
+import { reviewProgress } from './utils/reviewProgress'
 
 const COLS = 14
 const ROWS = 10
 const AIM_STEP = 2
 const COLORS = ['coral', 'mint', 'lilac', 'gold', 'blue']
+const SCORE_STORAGE_KEY = 'sanskrit-bubble-score'
+const LEVEL_COMPLETE_BONUS = 50
+const REVIEW_BONUS = 50
+
+// Keep the running score between levels and page reloads.
+function readStoredScore() {
+  const stored = Number(window.localStorage.getItem(SCORE_STORAGE_KEY))
+  return Number.isFinite(stored) && stored > 0 ? stored : 0
+}
 
 function App() {
   const [levels, setLevels] = useState(null)
@@ -23,20 +34,25 @@ function App() {
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
   const [gameOver, setGameOver] = useState(false)
+  const [levelComplete, setLevelComplete] = useState(false)
+  const [score, setScore] = useState(readStoredScore)
+  const [reviewedSounds, setReviewedSounds] = useState(() => new Set())
+  const [reviewBonusAwarded, setReviewBonusAwarded] = useState(false)
   const [aimAngle, setAimAngle] = useState(0)
   const [trajectory, setTrajectory] = useState({ width: 0, height: 0, points: [], fullPoints: [], candidates: [] })
   const playfieldRef = useRef(null)
   const level = levels?.[levelId]
   const showAimGuide = levelId === 'level_1'
   const pool = useMemo(() => level?.bubble_pool ?? [], [level])
+  const hasBubbles = board.some((row) => row.some(Boolean))
   const [bubbleIndex, setBubbleIndex] = useState(0)
   const activePool = useMemo(() => {
     const presentSounds = new Set(board.flat().filter(Boolean).map((bubble) => bubble.iast))
     const available = pool.filter((item) => presentSounds.has(item.iast))
     return available.length ? available : pool
   }, [board, pool])
-  const current = activePool.length ? activePool[bubbleIndex % activePool.length] : null
-  const next = activePool.length ? activePool[(bubbleIndex + 1) % activePool.length] : null
+  const current = hasBubbles && activePool.length ? activePool[bubbleIndex % activePool.length] : null
+  const next = hasBubbles && activePool.length ? activePool[(bubbleIndex + 1) % activePool.length] : null
   const soundGlyphWidth = useMemo(() => {
     const longest = Math.max(1, ...pool.map((item) => Array.from(item.devanagari).length))
     return `${Math.max(39, longest * 22 + 8)}px`
@@ -57,6 +73,9 @@ function App() {
     setShots(0)
     setBubbleIndex(0)
     setGameOver(false)
+    setLevelComplete(false)
+    setReviewedSounds(new Set())
+    setReviewBonusAwarded(false)
     setMessage('Aim with ← → and press SPACE to pop!')
   }, [level])
 
@@ -87,12 +106,54 @@ function App() {
     } else pronounce(bubble?.iast)
   }, [pronounce])
 
+  const addScore = useCallback((amount) => {
+    if (!amount) return
+    setScore((value) => value + amount)
+  }, [])
+
+  // Persist the score so it keeps growing across levels and page reloads.
+  useEffect(() => {
+    window.localStorage.setItem(SCORE_STORAGE_KEY, String(score))
+  }, [score])
+
+  const { complete: allSoundsReviewed } = reviewProgress(pool, reviewedSounds)
+
+  // Play one sound of the completed level and remember that it was reviewed.
+  const reviewSound = useCallback((item) => {
+    speak(item)
+    setReviewedSounds((previous) => {
+      if (previous.has(item.iast)) return previous
+      const updated = new Set(previous)
+      updated.add(item.iast)
+      return updated
+    })
+  }, [speak])
+
+  // Award the listening bonus once, as soon as every sound of the level has been played.
+  useEffect(() => {
+    if (!levelComplete || reviewBonusAwarded || !allSoundsReviewed) return
+    /* eslint-disable react-hooks/set-state-in-effect */
+    setReviewBonusAwarded(true)
+    addScore(REVIEW_BONUS)
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [addScore, allSoundsReviewed, levelComplete, reviewBonusAwarded])
+
+  const levelIds = Object.keys(levels ?? {})
+  const nextLevelId = levelIds[levelIds.indexOf(levelId) + 1]
+  const continueAfterLevel = () => {
+    setLevelComplete(false)
+    setReviewedSounds(new Set())
+    setReviewBonusAwarded(false)
+    if (nextLevelId) setLevelId(nextLevelId)
+    else setMessage('You completed all the lessons!')
+  }
+
   const traceShot = useCallback((angle) => calculateShot({ field: playfieldRef.current, angle }), [])
   const getPlacementCandidates = useCallback((shot) => findPlacementCandidates({ field: playfieldRef.current, board, shot, cols: COLS, rows: ROWS }), [board])
 
   // Trace the shot, place the current bubble, then resolve matching and gravity.
   const shoot = useCallback(() => {
-    if (!current || busy || gameOver || !board.length) return
+    if (!current || busy || gameOver || levelComplete || !board.length) return
     setBusy(true)
     const nextBoard = board.map((row) => [...row])
     const field = playfieldRef.current
@@ -130,11 +191,15 @@ function App() {
       if (reachesDangerLine) {
         setGameOver(true)
         setMessage('Bubble pile reached the danger line!')
+      } else if (!liftedBoard.some((row) => row.some(Boolean))) {
+        setLevelComplete(true)
+        addScore(LEVEL_COMPLETE_BONUS)
+        setMessage(`Level cleared! +${LEVEL_COMPLETE_BONUS} points!`)
       }
       setBoard(liftedBoard)
       setBusy(false)
     }, 500)
-  }, [aimAngle, board, busy, current, gameOver, getPlacementCandidates, speak, traceShot])
+  }, [addScore, aimAngle, board, busy, current, gameOver, getPlacementCandidates, levelComplete, speak, traceShot])
 
   useKeyboardAim({ onShoot: shoot, setAimAngle, step: AIM_STEP })
 
@@ -172,7 +237,7 @@ function App() {
     <header className="topbar"><a className="brand" href="https://zatam2.vercel.app" aria-label="Home"><span className="brand-mark">🏠</span><span>zat.am</span></a><div className="top-note brand-script"><img src="/SanskritBubble_Logo.png" alt="Sanskrit Bubble" /></div><button className="icon-button" aria-label="Sound effects">♫</button></header>
     <section className="game-layout">
       <div className="game-column">
-        <div className="lesson-row"><div><div className="eyebrow">{levelId.replace('_', ' ').toUpperCase()}</div><h1>{level?.level_title?.replace(/^Lesson \d+: /, '') || 'Sanskrit vowels'}</h1></div><div className="title-progress"><div className="progress-head"><span>LEVEL PROGRESS</span><span>{Math.round(progress)}%</span></div><div className="progress-track"><span style={{ width: `${progress}%` }} /></div></div><div className="title-stats"><div><span className="stat-label">SCORE</span><strong>0000</strong></div><div><span className="stat-label">SHOTS</span><strong>{String(shots).padStart(2, '0')}</strong></div></div></div>
+        <div className="lesson-row"><div><div className="eyebrow">{levelId.replace('_', ' ').toUpperCase()}</div><h1>{level?.level_title?.replace(/^Lesson \d+: /, '') || 'Sanskrit vowels'}</h1></div><div className="title-progress"><div className="progress-head"><span>LEVEL PROGRESS</span><span>{Math.round(progress)}%</span></div><div className="progress-track"><span style={{ width: `${progress}%` }} /></div></div><div className="title-stats"><div><span className="stat-label">SCORE</span><strong key={score} className="score-value">{String(score).padStart(4, '0')}</strong></div><div><span className="stat-label">SHOTS</span><strong>{String(shots).padStart(2, '0')}</strong></div></div></div>
         <div className="playfield" ref={playfieldRef}>
           <div className="field-glow" />
           <div className="field-top"><span><i /> CLEAR ALL THE BUBBLES</span><span>LEVEL {Object.keys(levels).indexOf(levelId) + 1} / {Object.keys(levels).length}</span></div>
@@ -190,10 +255,29 @@ function App() {
           </svg>
           <div className="danger-line" />
           <div className="game-feedback"><span className="feedback-icon">✦</span>{message}</div>
-          <div className="shooter-area"><div className="next-bubble"><small>NEXT</small><div className={`bubble mini ${COLORS[pool.findIndex((item) => item.iast === next?.iast) % COLORS.length]}`}><span className="translit" style={{ fontSize: fitBubbleFont(next?.iast, 12, 7) }}>{next?.iast}</span></div></div><div className="shooter"><div className={`bubble loaded ${COLORS[pool.findIndex((item) => item.iast === current?.iast) % COLORS.length]}`}><span className="translit" style={{ fontSize: fitBubbleFont(current?.iast, 17, 9) }}>{current?.iast}</span></div></div><div className="shoot-hint"><span className="keycap">←</span> <span className="keycap">→</span> AIM &nbsp; <span className="keycap space-key">SPACE</span> FIRE</div></div>
+          <div className="shooter-area"><div className="next-bubble"><small>NEXT</small>{next && <div className={`bubble mini ${COLORS[pool.findIndex((item) => item.iast === next.iast) % COLORS.length]}`}><span className="translit" style={{ fontSize: fitBubbleFont(next.iast, 12, 7) }}>{next.iast}</span></div>}</div><div className="shooter">{current && <div className={`bubble loaded ${COLORS[pool.findIndex((item) => item.iast === current.iast) % COLORS.length]}`}><span className="translit" style={{ fontSize: fitBubbleFont(current.iast, 17, 9) }}>{current.iast}</span></div>}</div><div className="shoot-hint"><span className="keycap">←</span> <span className="keycap">→</span> AIM &nbsp; <span className="keycap space-key">SPACE</span> FIRE</div></div>
           <div className="field-floor" />
         </div>
-        {gameOver && <div className="game-over"><strong>OH NO!</strong><span>The bubble pile crossed the danger line.</span><button onClick={resetGame}>Play again</button></div>}
+        {gameOver && <div className="level-complete-overlay"><section className="level-complete-modal game-over-modal" role="dialog" aria-modal="true" aria-labelledby="game-over-title">
+          <div className="completion-sparkle">✦</div>
+          <p className="completion-eyebrow">KEEP GOING</p>
+          <h2 id="game-over-title">You've got this!</h2>
+          <p className="completion-description">That was close. Take a breath and try again—you can do it!</p>
+          <div className="completion-word-list">{pool.map((item, index) => <div className="completion-word" key={`retry-${levelId}-${item.iast}`}>
+            <span className={`sound-glyph ${COLORS[index % COLORS.length]}`}>{item.devanagari}</span>
+            <span className="completion-word-text"><strong>{item.iast}</strong><small>{item.description ?? item.meaning ?? ''}</small></span>
+            <button className="completion-play" aria-label={`Play ${item.iast}`} onClick={() => speak(item)}>▶</button>
+          </div>)}</div>
+          <button className="completion-continue" onClick={resetGame}>PLAY AGAIN</button>
+        </section></div>}
+        {levelComplete && <div className="level-complete-overlay"><section className="level-complete-modal" role="dialog" aria-modal="true" aria-labelledby="completion-title">
+          <div className="completion-sparkle">✦</div>
+          <p className="completion-eyebrow">LEVEL COMPLETE</p>
+          <h2 id="completion-title">Congratulations!</h2>
+          <p className="completion-description">Level cleared! <strong className="bonus-score">+{LEVEL_COMPLETE_BONUS}</strong> points added to your score.</p>
+          <LevelReviewCard pool={pool} levelId={levelId} reviewedSounds={reviewedSounds} reviewSound={reviewSound} reviewBonus={REVIEW_BONUS} />
+          <button className="completion-continue" onClick={continueAfterLevel}>{nextLevelId ? 'Continue' : 'Finish'}</button>
+        </section></div>}
         <div className="under-field"><span>✧&nbsp; Match 3 connected sounds to pop them!</span><button onClick={resetGame}>Restart <span>↻</span></button></div>
       </div>
       <div className="side-column"><label className="side-level-select"><select value={levelId} onChange={(event) => setLevelId(event.target.value)}>{Object.entries(levels).map(([id, item]) => <option key={id} value={id}>{item.level_title}</option>)}</select></label><aside className="lesson-card"><div className="card-head"><div className="eyebrow">TODAY'S SOUNDS</div></div><p className="card-description">Listen, learn, and match the Sanskrit sounds.</p><div className="sound-list">{pool.map((item, i) => <button className="sound-item" key={`${levelId}-${i}-${item.iast}`} onClick={() => speak(item)}><span className={`sound-glyph ${COLORS[i % COLORS.length]}`} style={{ width: soundGlyphWidth, fontSize: fitBubbleFont(item.devanagari, 22, 12) }}>{item.devanagari}</span><span className="sound-word"><strong>{item.iast}</strong><small>{item.description ?? item.meaning ?? ''}</small></span><span className="play-icon">▶</span></button>)}</div><div className="tip-box"><span>✧</span><p><strong>Sound tip</strong><br />Tap a sound to hear it. Try saying it out loud!</p></div></aside></div>
