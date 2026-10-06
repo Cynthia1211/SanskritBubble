@@ -25,6 +25,12 @@ function readStoredScore() {
   return Number.isFinite(stored) && stored > 0 ? stored : 0
 }
 
+function getLevelColors(levelId, colorCount) {
+  const levelNumber = Number(levelId.match(/\d+/)?.[0]) || 1
+  const start = (levelNumber - 1) % COLORS.length
+  return Array.from({ length: colorCount }, (_, index) => COLORS[(start + index) % COLORS.length])
+}
+
 function App() {
   const [levels, setLevels] = useState(null)
   const [levelId, setLevelId] = useState('level_1')
@@ -43,6 +49,7 @@ function App() {
   const level = levels?.[levelId]
   const showAimGuide = levelId === 'level_1'
   const pool = useMemo(() => level?.bubble_pool ?? [], [level])
+  const colorOrder = useMemo(() => getLevelColors(levelId, pool.length), [levelId, pool.length])
   const hasBubbles = board.some((row) => row.some(Boolean))
   const [bubbleIndex, setBubbleIndex] = useState(0)
   const activePool = useMemo(() => {
@@ -230,7 +237,7 @@ function App() {
           <div className="field-glow" />
           <div className="field-top"><span><i /> CLEAR ALL THE BUBBLES</span><span>LEVEL {Object.keys(levels).indexOf(levelId) + 1} / {Object.keys(levels).length}</span></div>
           <div className="bubble-grid" style={{ '--cols': COLS }}>
-            {board.map((row, r) => <div className={`bubble-grid-row ${r % 2 ? 'offset-row' : ''}`} key={`row-${r}`}>{row.map((bubble, c) => <div key={`${r}-${c}`} data-row={r} data-col={c} className={`bubble-cell ${bubble ? `bubble ${COLORS[pool.findIndex((item) => item.id === bubble.id) % COLORS.length]}` : 'empty'}`} aria-label={bubble?.devanagari}>
+            {board.map((row, r) => <div className={`bubble-grid-row ${r % 2 ? 'offset-row' : ''}`} key={`row-${r}`}>{row.map((bubble, c) => <div key={`${r}-${c}`} data-row={r} data-col={c} className={`bubble-cell ${bubble ? `bubble ${colorOrder[pool.findIndex((item) => item.id === bubble.id) % colorOrder.length]}` : 'empty'}`} aria-label={bubble?.devanagari}>
               {bubble && <span className="devanagari" style={{ fontSize: fitBubbleFont(bubble.devanagari, 25, 12) }}>{bubble.devanagari}</span>}
             </div>)}</div>)}
           </div>
@@ -243,7 +250,7 @@ function App() {
           </svg>
           <div className="danger-line" />
           <div className="game-feedback"><span className="feedback-icon">✦</span>{message}</div>
-          <div className="shooter-area"><div className="next-bubble"><small>NEXT</small>{next && <div className={`bubble mini ${COLORS[pool.findIndex((item) => item.id === next.id) % COLORS.length]}`}><span className="translit" style={{ fontSize: fitBubbleFont(next.iast, 12, 7) }}>{next.iast}</span></div>}</div><div className="shooter">{current && <div className={`bubble loaded ${COLORS[pool.findIndex((item) => item.id === current.id) % COLORS.length]}`}><span className="translit" style={{ fontSize: fitBubbleFont(current.iast, 17, 9) }}>{current.iast}</span></div>}</div><div className="shoot-hint"><span className="keycap">←</span> <span className="keycap">→</span> AIM &nbsp; <span className="keycap space-key">SPACE</span> FIRE</div></div>
+          <div className="shooter-area"><div className="next-bubble"><small>NEXT</small>{next && <div className={`bubble mini ${colorOrder[pool.findIndex((item) => item.id === next.id) % colorOrder.length]}`}><span className="translit" style={{ fontSize: fitBubbleFont(next.iast, 12, 7) }}>{next.iast}</span></div>}</div><div className="shooter">{current && <div className={`bubble loaded ${colorOrder[pool.findIndex((item) => item.id === current.id) % colorOrder.length]}`}><span className="translit" style={{ fontSize: fitBubbleFont(current.iast, 17, 9) }}>{current.iast}</span></div>}</div><div className="shoot-hint"><span className="keycap">←</span> <span className="keycap">→</span> AIM &nbsp; <span className="keycap space-key">SPACE</span> FIRE</div></div>
           <div className="field-floor" />
         </div>
         {gameOver && <div className="level-complete-overlay"><section className="level-complete-modal game-over-modal" role="dialog" aria-modal="true" aria-labelledby="game-over-title">
@@ -252,7 +259,7 @@ function App() {
           <h2 id="game-over-title">You've got this!</h2>
           <p className="completion-description">That was close. Take a breath and try again—you can do it!</p>
           <div className="completion-word-list">{pool.map((item, index) => <div className="completion-word" key={`retry-${levelId}-${item.id ?? item.iast}`}>
-            <span className={`sound-glyph ${COLORS[index % COLORS.length]}`}>{item.devanagari}</span>
+            <span className={`sound-glyph ${colorOrder[index % colorOrder.length]}`}>{item.devanagari}</span>
             <span className="completion-word-text"><strong>{item.iast}</strong><small>{item.description ?? item.meaning ?? ''}</small></span>
             <button className="completion-play" aria-label={`Play ${item.iast}`} onClick={() => speak(item)}>▶</button>
           </div>)}</div>
@@ -263,12 +270,12 @@ function App() {
           <p className="completion-eyebrow">LEVEL COMPLETE</p>
           <h2 id="completion-title">Congratulations!</h2>
           <p className="completion-description">Level cleared! <strong className="bonus-score">+{LEVEL_COMPLETE_BONUS}</strong> points added to your score.</p>
-          <LevelReviewCard pool={pool} levelId={levelId} reviewedSounds={reviewedSounds} reviewSound={reviewSound} reviewBonus={REVIEW_BONUS} />
+          <LevelReviewCard pool={pool} levelId={levelId} reviewedSounds={reviewedSounds} reviewSound={reviewSound} reviewBonus={REVIEW_BONUS} colors={colorOrder} />
           <button className="completion-continue" onClick={continueAfterLevel}>{nextLevelId ? 'Continue' : 'Finish'}</button>
         </section></div>}
         <div className="under-field"><span>✧&nbsp; Match 3 connected sounds to pop them!</span><button onClick={resetGame}>Restart <span>↻</span></button></div>
       </div>
-      <div className="side-column"><label className="side-level-select"><select value={levelId} onChange={(event) => setLevelId(event.target.value)}>{Object.entries(levels).map(([id, item]) => <option key={id} value={id}>{item.level_title}</option>)}</select></label><aside className="lesson-card"><div className="card-head"><div className="eyebrow">TODAY'S SOUNDS</div></div><p className="card-description">Listen, learn, and match the Sanskrit sounds.</p><div className="sound-list">{pool.map((item, i) => <button className="sound-item" key={`${levelId}-${i}-${item.iast}`} onClick={() => speak(item)}><span className={`sound-glyph ${COLORS[i % COLORS.length]}`} style={{ width: soundGlyphWidth, fontSize: fitBubbleFont(item.devanagari, 22, 12) }}>{item.devanagari}</span><span className="sound-word"><strong>{item.iast}</strong><small>{item.description ?? item.meaning ?? ''}</small></span><span className="play-icon">▶</span></button>)}</div><div className="tip-box"><span>✧</span><p><strong>Sound tip</strong><br />Tap a sound to hear it. Try saying it out loud!</p></div></aside></div>
+      <div className="side-column"><label className="side-level-select"><select value={levelId} onChange={(event) => setLevelId(event.target.value)}>{Object.entries(levels).map(([id, item]) => <option key={id} value={id}>{item.level_title}</option>)}</select></label><aside className="lesson-card"><div className="card-head"><div className="eyebrow">TODAY'S SOUNDS</div></div><p className="card-description">Listen, learn, and match the Sanskrit sounds.</p><div className="sound-list">{pool.map((item, i) => <button className="sound-item" key={`${levelId}-${i}-${item.iast}`} onClick={() => speak(item)}><span className={`sound-glyph ${colorOrder[i % colorOrder.length]}`} style={{ width: soundGlyphWidth, fontSize: fitBubbleFont(item.devanagari, 22, 12) }}>{item.devanagari}</span><span className="sound-word"><strong>{item.iast}</strong><small>{item.description ?? item.meaning ?? ''}</small></span><span className="play-icon">▶</span></button>)}</div><div className="tip-box"><span>✧</span><p><strong>Sound tip</strong><br />Tap a sound to hear it. Try saying it out loud!</p></div></aside></div>
     </section>
     <footer className="app-footer"><span>Start with a sound. Discover an ancient script.</span><span>शुभम्&nbsp; ✦ &nbsp;Happy learning</span></footer>
   </main>

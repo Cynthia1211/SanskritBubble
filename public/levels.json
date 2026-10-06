@@ -4,14 +4,7 @@
     "bubble_pool": [
       { "devanagari": "अ", "iast": "a", "audio": "/अ.wav", "description": "स्वर (Vowels)" },
       { "devanagari": "इ", "iast": "i", "audio": "/इ.wav", "description": "स्वर (Vowels)" },
-      { "devanagari": "उ", "iast": "u", "audio": "/उ.wav", "description": "स्वर (Vowels)" },
-      { "devanagari": "ग", "iast": "ga", "audio": "", "description": "व्यञ्जन (Consonants)" },
-      { "devanagari": "घ", "iast": "gha", "audio": "", "description": "व्यञ्जन (Consonants)" },
-      { "devanagari": "ङ", "iast": "ṅa", "audio": "", "description": "व्यञ्जन (Consonants)" },
-      { "devanagari": "ग", "iast": "ga", "audio": "", "description": "व्यञ्जन (Consonants)" },
-      { "devanagari": "घ", "iast": "gha", "audio": "", "description": "व्यञ्जन (Consonants)" },
-      { "devanagari": "ङ", "iast": "ṅa", "audio": "", "description": "व्यञ्जन (Consonants)" },
-      { "devanagari": "ङ", "iast": "ṅa", "audio": "", "description": "व्यञ्जन (Consonants)" }
+      { "devanagari": "उ", "iast": "u", "audio": "/उ.wav", "description": "स्वर (Vowels)" }
     ]
   },
   "level_2": {
