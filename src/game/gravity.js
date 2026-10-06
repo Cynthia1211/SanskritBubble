@@ -40,13 +40,20 @@ export function liftLooseBubbles(board, { rows, cols }) {
       // Column changes depend on row parity so the staggered shape translates
       // as a whole instead of shearing apart while it moves upward.
       while (true) {
-        const shifted = component.map(([row, col]) => {
-          const colDelta = direction === 'right'
+        const getShiftedComponent = (moveDirection) => component.map(([row, col]) => {
+          const colDelta = moveDirection === 'right'
             ? (row % 2 === 0 ? 0 : 1)
             : (row % 2 === 0 ? -1 : 0)
           return [row - 1, col + colDelta]
         })
-        if (shifted.some(([row, col]) => row < 0 || col < 0 || col >= cols)) break
+
+        let shifted = getShiftedComponent(direction)
+        const crossesBoundary = (positions) => positions.some(([row, col]) => row < 0 || col < 0 || col >= cols)
+        if (crossesBoundary(shifted)) {
+          direction = direction === 'right' ? 'left' : 'right'
+          shifted = getShiftedComponent(direction)
+          if (crossesBoundary(shifted)) break
+        }
 
         const occupiedByOutside = shifted.some(([row, col]) => lifted[row]?.[col] && !componentKeys.has(key(row, col)))
         if (occupiedByOutside) break
