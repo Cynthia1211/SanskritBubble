@@ -11,6 +11,7 @@ import { fitBubbleFont } from './utils/bubbleText'
 import { LevelReviewCard } from './components/LevelReviewCard'
 import { reviewProgress } from './utils/reviewProgress'
 import { startBGM as startBackgroundMusic, stopBGM as stopBackgroundMusic } from './assets/Tone'
+import { playGearRotate, playPopSound } from './assets/SoundEffects'
 
 const COLS = 14
 const ROWS = 10
@@ -19,81 +20,6 @@ const COLORS = ['coral', 'mint', 'gold', 'blue', 'lilac', 'teal', 'rose', 'orang
 const SCORE_STORAGE_KEY = 'sanskrit-bubble-score'
 const LEVEL_COMPLETE_BONUS = 50
 const REVIEW_BONUS = 50
-let popAudioContext
-let gearAudioContext
-
-function playPopSound() {
-  const AudioContext = window.AudioContext || window.webkitAudioContext
-  if (!AudioContext) return
-  popAudioContext ??= new AudioContext()
-
-  const startSound = () => {
-    const now = popAudioContext.currentTime
-    const osc = popAudioContext.createOscillator()
-    const gain = popAudioContext.createGain()
-
-    osc.type = 'sine'
-    osc.frequency.setValueAtTime(800, now)
-    osc.frequency.exponentialRampToValueAtTime(100, now + 0.08)
-    gain.gain.setValueAtTime(0.5, now)
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08)
-
-    osc.connect(gain)
-    gain.connect(popAudioContext.destination)
-    osc.start(now)
-    osc.stop(now + 0.08)
-  }
-
-  if (popAudioContext.state === 'suspended') {
-    popAudioContext.resume().then(startSound).catch(() => {})
-  } else startSound()
-}
-
-function playGearRotate(duration = 0.3) {
-  const AudioContext = window.AudioContext || window.webkitAudioContext
-  if (!AudioContext) return
-  gearAudioContext ??= new AudioContext()
-
-  const startSound = () => {
-    const now = gearAudioContext.currentTime
-    const clickCount = Math.max(3, Math.round(duration * 2))
-    const interval = duration / clickCount
-
-    for (let index = 0; index < clickCount; index += 1) {
-      const clickTime = now + index * interval
-      const body = gearAudioContext.createOscillator()
-      const sparkle = gearAudioContext.createOscillator()
-      const bodyGain = gearAudioContext.createGain()
-      const sparkleGain = gearAudioContext.createGain()
-
-      body.type = 'triangle'
-      body.frequency.setValueAtTime(720 + (index % 2) * 90, clickTime)
-      body.frequency.exponentialRampToValueAtTime(260, clickTime + 0.035)
-      bodyGain.gain.setValueAtTime(0.03, clickTime)
-      bodyGain.gain.exponentialRampToValueAtTime(0.001, clickTime + 0.035)
-
-      sparkle.type = 'sine'
-      sparkle.frequency.setValueAtTime(2200 + (index % 3) * 180, clickTime)
-      sparkle.frequency.exponentialRampToValueAtTime(900, clickTime + 0.018)
-      sparkleGain.gain.setValueAtTime(0.05, clickTime)
-      sparkleGain.gain.exponentialRampToValueAtTime(0.001, clickTime + 0.018)
-
-      body.connect(bodyGain)
-      sparkle.connect(sparkleGain)
-      bodyGain.connect(gearAudioContext.destination)
-      sparkleGain.connect(gearAudioContext.destination)
-      body.start(clickTime)
-      sparkle.start(clickTime)
-      body.stop(clickTime + 0.04)
-      sparkle.stop(clickTime + 0.022)
-    }
-  }
-
-  if (gearAudioContext.state === 'suspended') {
-    gearAudioContext.resume().then(startSound).catch(() => {})
-  } else startSound()
-}
-
 // Keep the running score between levels and page reloads in this browser tab.
 function readStoredScore() {
   const stored = Number(window.sessionStorage.getItem(SCORE_STORAGE_KEY))
@@ -104,6 +30,15 @@ function getLevelColors(levelId, colorCount) {
   const levelNumber = Number(levelId.match(/\d+/)?.[0]) || 1
   const start = (levelNumber - 1) % COLORS.length
   return Array.from({ length: colorCount }, (_, index) => COLORS[(start + index) % COLORS.length])
+}
+
+function shuffleItems(items) {
+  const shuffled = [...items]
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1))
+    ;[shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]]
+  }
+  return shuffled
 }
 
 function App() {
@@ -129,11 +64,18 @@ function App() {
   const colorOrder = useMemo(() => getLevelColors(levelId, pool.length), [levelId, pool.length])
   const hasBubbles = board.some((row) => row.some(Boolean))
   const [bubbleIndex, setBubbleIndex] = useState(0)
+  const [randomizedPool, setRandomizedPool] = useState([])
+  useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect */
+    setRandomizedPool(shuffleItems(pool))
+    setBubbleIndex(0)
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [levelId, pool])
   const activePool = useMemo(() => {
     const presentSounds = new Set(board.flat().filter(Boolean).map((bubble) => bubble.id))
-    const available = pool.filter((item) => presentSounds.has(item.id))
-    return available.length ? available : pool
-  }, [board, pool])
+    const available = randomizedPool.filter((item) => presentSounds.has(item.id))
+    return available.length ? available : randomizedPool
+  }, [board, randomizedPool])
   const current = hasBubbles && activePool.length ? activePool[bubbleIndex % activePool.length] : null
   const next = hasBubbles && activePool.length ? activePool[(bubbleIndex + 1) % activePool.length] : null
   const soundGlyphWidth = useMemo(() => {
@@ -293,7 +235,7 @@ function App() {
     const { row: targetRow, col: targetCol } = target
     nextBoard[targetRow][targetCol] = current
     setBoard(nextBoard)
-    setBubbleIndex((value) => value + 1)
+    setBubbleIndex(Math.floor(Math.random() * activePool.length))
     setMessage('')
     const found = findConnectedGroup(nextBoard, targetRow, targetCol, current.id)
     const cleared = found.size >= 3 ? found : new Set()
@@ -329,7 +271,7 @@ function App() {
       setBoard(liftedBoard)
       setBusy(false)
     }, 500)
-  }, [addScore, aimAngle, board, busy, current, gameOver, getPlacementCandidates, levelComplete, soundEffectsEnabled, speak, traceShot])
+  }, [activePool.length, addScore, aimAngle, board, busy, current, gameOver, getPlacementCandidates, levelComplete, soundEffectsEnabled, speak, traceShot])
 
   useKeyboardAim({ aimAngle, onShoot: shoot, onAimChange: playAimSound, setAimAngle, step: AIM_STEP })
 
