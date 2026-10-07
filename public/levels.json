@@ -1,110 +1,110 @@
 {
   "level_1": {
-    "level_title": "Vowel(sस्वर) - अ, इ, उ",
+    "level_title": "Vowels(स्वर) - अ, इ, उ",
     "bubble_pool": [
-      { "devanagari": "अ", "iast": "a", "audio": "/अ.wav", "description": "Vowel (sस्वर)" },
-      { "devanagari": "इ", "iast": "i", "audio": "/इ.wav", "description": "Vowel (sस्वर)" },
-      { "devanagari": "उ", "iast": "u", "audio": "/उ.wav", "description": "Vowel (sस्वर)" }
+      { "devanagari": "अ", "iast": "a", "audio": "/अ.mp3", "description": "Vowel (स्वर)" },
+      { "devanagari": "इ", "iast": "i", "audio": "/इ.mp3", "description": "Vowel (स्वर)" },
+      { "devanagari": "उ", "iast": "u", "audio": "/उ.mp3", "description": "Vowel (स्वर)" }
     ]
   },
   "level_2": {
-    "level_title": "Vowel(sस्वर) - आ, ई, ऊ",
+    "level_title": "Vowels(स्वर) - आ, ई, ऊ",
     "bubble_pool": [
-      { "devanagari": "आ", "iast": "ā", "audio": "/आ.wav", "description": "Vowel (sस्वर)" },
-      { "devanagari": "ई", "iast": "ī", "audio": "/ई.wav", "description": "Vowel (sस्वर)" },
-      { "devanagari": "ऊ", "iast": "ū", "audio": "/ऊ.wav", "description": "Vowel (sस्वर)" }
+      { "devanagari": "आ", "iast": "ā", "audio": "/आ.mp3", "description": "Vowel (स्वर)" },
+      { "devanagari": "ई", "iast": "ī", "audio": "/ई.mp3", "description": "Vowel (स्वर)" },
+      { "devanagari": "ऊ", "iast": "ū", "audio": "/ऊ.mp3", "description": "Vowel (स्वर)" }
     ]
   },
   "level_3": {
-    "level_title": "Vowel(sस्वर) - ऋ, ॠ, ऌ",
+    "level_title": "Vowels(स्वर) - ऋ, ॠ, ऌ",
     "bubble_pool": [
-      { "devanagari": "ऋ", "iast": "ṛ", "audio": "", "description": "Vowel (sस्वर)" },
-      { "devanagari": "ॠ", "iast": "ṝ", "audio": "", "description": "Vowel (sस्वर)" },
-      { "devanagari": "ऌ", "iast": "ḷ", "audio": "", "description": "Vowel (sस्वर)" }
+      { "devanagari": "ऋ", "iast": "ṛ", "audio": "/ऋ.mp3", "description": "Vowel (स्वर)" },
+      { "devanagari": "ॠ", "iast": "ṝ", "audio": "/ॠ.mp3", "description": "Vowel (स्वर)" },
+      { "devanagari": "ऌ", "iast": "ḷ", "audio": "/ऌ.mp3", "description": "Vowel (स्वर)" }
     ]
   },
   "level_4": {
-    "level_title": "Vowel(sस्वर) - ए, ऐ, ओ, औ",
+    "level_title": "Vowels(स्वर) - ए, ऐ, ओ, औ",
     "bubble_pool": [
-      { "devanagari": "ए", "iast": "e", "audio": "", "description": "Vowel (sस्वर)" },
-      { "devanagari": "ऐ", "iast": "ai", "audio": "", "description": "Vowel (sस्वर)" },
-      { "devanagari": "ओ", "iast": "o", "audio": "", "description": "Vowel (sस्वर)" },
-      { "devanagari": "औ", "iast": "au", "audio": "", "description": "Vowel (sस्वर)" }
+      { "devanagari": "ए", "iast": "e", "audio": "/ए.mp3", "description": "Vowel (स्वर)" },
+      { "devanagari": "ऐ", "iast": "ai", "audio": "/ऐ.mp3", "description": "Vowel (स्वर)" },
+      { "devanagari": "ओ", "iast": "o", "audio": "/ओ.mp3", "description": "Vowel (स्वर)" },
+      { "devanagari": "औ", "iast": "au", "audio": "/औ.mp3", "description": "Vowel (स्वर)" }
     ]
   },
   "level_5": {
-    "level_title": "Vowel(sस्वर) - अं, अः",
+    "level_title": "Vowels(स्वर) - अं, अः",
     "bubble_pool": [
-      { "devanagari": "अं", "iast": "ṃ", "audio": "", "description": "Vowel (sस्वर)" },
-      { "devanagari": "अः", "iast": "ḥ", "audio": "", "description": "Vowel (sस्वर)" }
+      { "devanagari": "अं", "iast": "ṃ", "audio": "", "description": "Vowel (स्वर)" },
+      { "devanagari": "अः", "iast": "ḥ", "audio": "", "description": "Vowel (स्वर)" }
     ]
   },
   "level_6": {
     "level_title": "Consonants(व्यञ्जन) - क, ख, ग, घ, ङ",
     "bubble_pool": [
-      { "devanagari": "क", "iast": "ka", "audio": "", "description": "Consonants (व्यञ्जन)" },
-      { "devanagari": "ख", "iast": "kha", "audio": "", "description": "Consonants (व्यञ्जन)" },
-      { "devanagari": "ग", "iast": "ga", "audio": "", "description": "Consonants (व्यञ्जन)" },
-      { "devanagari": "घ", "iast": "gha", "audio": "", "description": "Consonants (व्यञ्जन)" },
-      { "devanagari": "ङ", "iast": "ṅa", "audio": "", "description": "Consonants (व्यञ्जन)" }
+      { "devanagari": "क", "iast": "ka", "audio": "", "description": "Consonant (व्यञ्जन)" },
+      { "devanagari": "ख", "iast": "kha", "audio": "", "description": "Consonant (व्यञ्जन)" },
+      { "devanagari": "ग", "iast": "ga", "audio": "", "description": "Consonant (व्यञ्जन)" },
+      { "devanagari": "घ", "iast": "gha", "audio": "", "description": "Consonant (व्यञ्जन)" },
+      { "devanagari": "ङ", "iast": "ṅa", "audio": "", "description": "Consonant (व्यञ्जन)" }
     ]
   },
   "level_7": {
     "level_title": "Consonants(व्यञ्जन) - च, छ, ज, झ, ञ",
     "bubble_pool": [
-      { "devanagari": "च", "iast": "ca", "audio": "", "description": "Consonants (व्यञ्जन)" },
-      { "devanagari": "छ", "iast": "cha", "audio": "", "description": "Consonants (व्यञ्जन)" },
-      { "devanagari": "ज", "iast": "ja", "audio": "", "description": "Consonants (व्यञ्जन)" },
-      { "devanagari": "झ", "iast": "jha", "audio": "", "description": "Consonants (व्यञ्जन)" },
-      { "devanagari": "ञ", "iast": "ña", "audio": "", "description": "Consonants (व्यञ्जन)" }
+      { "devanagari": "च", "iast": "ca", "audio": "", "description": "Consonant (व्यञ्जन)" },
+      { "devanagari": "छ", "iast": "cha", "audio": "", "description": "Consonant (व्यञ्जन)" },
+      { "devanagari": "ज", "iast": "ja", "audio": "", "description": "Consonant (व्यञ्जन)" },
+      { "devanagari": "झ", "iast": "jha", "audio": "", "description": "Consonant (व्यञ्जन)" },
+      { "devanagari": "ञ", "iast": "ña", "audio": "", "description": "Consonant (व्यञ्जन)" }
     ]
   },
   "level_8": {
     "level_title": "Consonants(व्यञ्जन) - ट, ठ, ड, ढ, ण",
     "bubble_pool": [
-      { "devanagari": "ट", "iast": "ṭa", "audio": "", "description": "Consonants (व्यञ्जन)" },
-      { "devanagari": "ठ", "iast": "ṭha", "audio": "", "description": "Consonants (व्यञ्जन)" },
-      { "devanagari": "ड", "iast": "ḍa", "audio": "", "description": "Consonants (व्यञ्जन)" },
-      { "devanagari": "ढ", "iast": "ḍha", "audio": "", "description": "Consonants (व्यञ्जन)" },
-      { "devanagari": "ण", "iast": "ṇa", "audio": "", "description": "Consonants (व्यञ्जन)" }
+      { "devanagari": "ट", "iast": "ṭa", "audio": "", "description": "Consonant (व्यञ्जन)" },
+      { "devanagari": "ठ", "iast": "ṭha", "audio": "", "description": "Consonant (व्यञ्जन)" },
+      { "devanagari": "ड", "iast": "ḍa", "audio": "", "description": "Consonant (व्यञ्जन)" },
+      { "devanagari": "ढ", "iast": "ḍha", "audio": "", "description": "Consonant (व्यञ्जन)" },
+      { "devanagari": "ण", "iast": "ṇa", "audio": "", "description": "Consonant (व्यञ्जन)" }
     ]
   },
   "level_9": {
     "level_title": "Consonants(व्यञ्जन) - त, थ, द, ध, न",
     "bubble_pool": [
-      { "devanagari": "त", "iast": "ta", "audio": "", "description": "Consonants (व्यञ्जन)" },
-      { "devanagari": "थ", "iast": "tha", "audio": "", "description": "Consonants (व्यञ्जन)" },
-      { "devanagari": "द", "iast": "da", "audio": "", "description": "Consonants (व्यञ्जन)" },
-      { "devanagari": "ध", "iast": "dha", "audio": "", "description": "Consonants (व्यञ्जन)" },
-      { "devanagari": "न", "iast": "na", "audio": "", "description": "Consonants (व्यञ्जन)" }
+      { "devanagari": "त", "iast": "ta", "audio": "", "description": "Consonant (व्यञ्जन)" },
+      { "devanagari": "थ", "iast": "tha", "audio": "", "description": "Consonant (व्यञ्जन)" },
+      { "devanagari": "द", "iast": "da", "audio": "", "description": "Consonant (व्यञ्जन)" },
+      { "devanagari": "ध", "iast": "dha", "audio": "", "description": "Consonant (व्यञ्जन)" },
+      { "devanagari": "न", "iast": "na", "audio": "", "description": "Consonant (व्यञ्जन)" }
     ]
   },
   "level_10": {
     "level_title": "Consonants(व्यञ्जन) - प, फ, ब, भ, म",
     "bubble_pool": [
-      { "devanagari": "प", "iast": "pa", "audio": "", "description": "Consonants (व्यञ्जन)" },
-      { "devanagari": "फ", "iast": "pha", "audio": "", "description": "Consonants (व्यञ्जन)" },
-      { "devanagari": "ब", "iast": "ba", "audio": "", "description": "Consonants (व्यञ्जन)" },
-      { "devanagari": "भ", "iast": "bha", "audio": "", "description": "Consonants (व्यञ्जन)" },
-      { "devanagari": "म", "iast": "ma", "audio": "", "description": "Consonants (व्यञ्जन)" }
+      { "devanagari": "प", "iast": "pa", "audio": "", "description": "Consonant (व्यञ्जन)" },
+      { "devanagari": "फ", "iast": "pha", "audio": "", "description": "Consonant (व्यञ्जन)" },
+      { "devanagari": "ब", "iast": "ba", "audio": "", "description": "Consonant (व्यञ्जन)" },
+      { "devanagari": "भ", "iast": "bha", "audio": "", "description": "Consonant (व्यञ्जन)" },
+      { "devanagari": "म", "iast": "ma", "audio": "", "description": "Consonant (व्यञ्जन)" }
     ]
   },
   "level_11": {
     "level_title": "Consonants(व्यञ्जन) - य, र, ल, व",
     "bubble_pool": [
-      { "devanagari": "य", "iast": "ya", "audio": "", "description": "Consonants (व्यञ्जन)" },
-      { "devanagari": "र", "iast": "ra", "audio": "", "description": "Consonants (व्यञ्जन)" },
-      { "devanagari": "ल", "iast": "la", "audio": "", "description": "Consonants (व्यञ्जन)" },
-      { "devanagari": "व", "iast": "va", "audio": "", "description": "Consonants (व्यञ्जन)" }
+      { "devanagari": "य", "iast": "ya", "audio": "", "description": "Consonant (व्यञ्जन)" },
+      { "devanagari": "र", "iast": "ra", "audio": "", "description": "Consonant (व्यञ्जन)" },
+      { "devanagari": "ल", "iast": "la", "audio": "", "description": "Consonant (व्यञ्जन)" },
+      { "devanagari": "व", "iast": "va", "audio": "", "description": "Consonant (व्यञ्जन)" }
     ]
   },
   "level_12": {
     "level_title": "Consonants(व्यञ्जन) - श, ष, स, ह",
     "bubble_pool": [
-      { "devanagari": "श", "iast": "śa", "audio": "", "description": "Consonants (व्यञ्जन)" },
-      { "devanagari": "ष", "iast": "ṣa", "audio": "", "description": "Consonants (व्यञ्जन)" },
-      { "devanagari": "स", "iast": "sa", "audio": "", "description": "Consonants (व्यञ्जन)" },
-      { "devanagari": "ह", "iast": "ha", "audio": "", "description": "Consonants (व्यञ्जन)" }
+      { "devanagari": "श", "iast": "śa", "audio": "", "description": "Consonant (व्यञ्जन)" },
+      { "devanagari": "ष", "iast": "ṣa", "audio": "", "description": "Consonant (व्यञ्जन)" },
+      { "devanagari": "स", "iast": "sa", "audio": "", "description": "Consonant (व्यञ्जन)" },
+      { "devanagari": "ह", "iast": "ha", "audio": "", "description": "Consonant (व्यञ्जन)" }
     ]
   },
   "level_13": {
