@@ -1,42 +1,42 @@
 {
   "level_1": {
-    "level_title": "Vowel(sस्वर) - अ, इ, उ",
+    "level_title": "Vowels(स्वर) - अ, इ, उ",
     "bubble_pool": [
-      { "devanagari": "अ", "iast": "a", "audio": "/अ.wav", "description": "Vowel (sस्वर)" },
-      { "devanagari": "इ", "iast": "i", "audio": "/इ.wav", "description": "Vowel (sस्वर)" },
-      { "devanagari": "उ", "iast": "u", "audio": "/उ.wav", "description": "Vowel (sस्वर)" }
+      { "devanagari": "अ", "iast": "a", "audio": "public/अ.mp3", "description": "Vowels (स्वर)" },
+      { "devanagari": "इ", "iast": "i", "audio": "public/इ.mp3", "description": "Vowels (स्वर)" },
+      { "devanagari": "उ", "iast": "u", "audio": "public/उ.mp3", "description": "Vowels (स्वर)" }
     ]
   },
   "level_2": {
-    "level_title": "Vowel(sस्वर) - आ, ई, ऊ",
+    "level_title": "Vowels(स्वर) - आ, ई, ऊ",
     "bubble_pool": [
-      { "devanagari": "आ", "iast": "ā", "audio": "/आ.wav", "description": "Vowel (sस्वर)" },
-      { "devanagari": "ई", "iast": "ī", "audio": "/ई.wav", "description": "Vowel (sस्वर)" },
-      { "devanagari": "ऊ", "iast": "ū", "audio": "/ऊ.wav", "description": "Vowel (sस्वर)" }
+      { "devanagari": "आ", "iast": "ā", "audio": "public/आ.mp3", "description": "Vowels (स्वर)" },
+      { "devanagari": "ई", "iast": "ī", "audio": "public/ई.mp3", "description": "Vowels (स्वर)" },
+      { "devanagari": "ऊ", "iast": "ū", "audio": "public/ऊ.mp3", "description": "Vowels (स्वर)" }
     ]
   },
   "level_3": {
-    "level_title": "Vowel(sस्वर) - ऋ, ॠ, ऌ",
+    "level_title": "Vowels(स्वर) - ऋ, ॠ, ऌ",
     "bubble_pool": [
-      { "devanagari": "ऋ", "iast": "ṛ", "audio": "", "description": "Vowel (sस्वर)" },
-      { "devanagari": "ॠ", "iast": "ṝ", "audio": "", "description": "Vowel (sस्वर)" },
-      { "devanagari": "ऌ", "iast": "ḷ", "audio": "", "description": "Vowel (sस्वर)" }
+      { "devanagari": "ऋ", "iast": "ṛ", "audio": "public/ऋ.mp3", "description": "Vowels (स्वर)" },
+      { "devanagari": "ॠ", "iast": "ṝ", "audio": "public/ॠ.mp3", "description": "Vowels (स्वर)" },
+      { "devanagari": "ऌ", "iast": "ḷ", "audio": "public/ऌ.mp3", "description": "Vowels (स्वर)" }
     ]
   },
   "level_4": {
-    "level_title": "Vowel(sस्वर) - ए, ऐ, ओ, औ",
+    "level_title": "Vowels(स्वर) - ए, ऐ, ओ, औ",
     "bubble_pool": [
-      { "devanagari": "ए", "iast": "e", "audio": "", "description": "Vowel (sस्वर)" },
-      { "devanagari": "ऐ", "iast": "ai", "audio": "", "description": "Vowel (sस्वर)" },
-      { "devanagari": "ओ", "iast": "o", "audio": "", "description": "Vowel (sस्वर)" },
-      { "devanagari": "औ", "iast": "au", "audio": "", "description": "Vowel (sस्वर)" }
+      { "devanagari": "ए", "iast": "e", "audio": "public/ए.mp3", "description": "Vowels (स्वर)" },
+      { "devanagari": "ऐ", "iast": "ai", "audio": "public/ऐ.mp3", "description": "Vowels (स्वर)" },
+      { "devanagari": "ओ", "iast": "o", "audio": "public/ओ.mp3", "description": "Vowels (स्वर)" },
+      { "devanagari": "औ", "iast": "au", "audio": "public/औ.mp3", "description": "Vowels (स्वर)" }
     ]
   },
   "level_5": {
-    "level_title": "Vowel(sस्वर) - अं, अः",
+    "level_title": "Vowels(स्वर) - अं, अः",
     "bubble_pool": [
-      { "devanagari": "अं", "iast": "ṃ", "audio": "", "description": "Vowel (sस्वर)" },
-      { "devanagari": "अः", "iast": "ḥ", "audio": "", "description": "Vowel (sस्वर)" }
+      { "devanagari": "अं", "iast": "ṃ", "audio": "", "description": "Vowels (स्वर)" },
+      { "devanagari": "अः", "iast": "ḥ", "audio": "", "description": "Vowels (स्वर)" }
     ]
   },
   "level_6": {

@@ -659,8 +659,14 @@ body {
     border: 2px solid #29334a;
     background: #ffcb45;
     color: #29334a;
+    border-radius: 8px;
     box-shadow: 2px 3px 0 #29334a;
     font-weight: 800
+}
+
+.topbar-actions {
+    display: flex;
+    gap: 8px
 }
 
 .lesson-row h1 {

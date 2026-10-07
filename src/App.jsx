@@ -10,6 +10,7 @@ import { fetchLevels } from './services/levelService'
 import { fitBubbleFont } from './utils/bubbleText'
 import { LevelReviewCard } from './components/LevelReviewCard'
 import { reviewProgress } from './utils/reviewProgress'
+import { startBGM as startBackgroundMusic, stopBGM as stopBackgroundMusic } from './assets/Tone'
 
 const COLS = 14
 const ROWS = 10
@@ -18,6 +19,80 @@ const COLORS = ['coral', 'mint', 'gold', 'blue', 'lilac', 'teal', 'rose', 'orang
 const SCORE_STORAGE_KEY = 'sanskrit-bubble-score'
 const LEVEL_COMPLETE_BONUS = 50
 const REVIEW_BONUS = 50
+let popAudioContext
+let gearAudioContext
+
+function playPopSound() {
+  const AudioContext = window.AudioContext || window.webkitAudioContext
+  if (!AudioContext) return
+  popAudioContext ??= new AudioContext()
+
+  const startSound = () => {
+    const now = popAudioContext.currentTime
+    const osc = popAudioContext.createOscillator()
+    const gain = popAudioContext.createGain()
+
+    osc.type = 'sine'
+    osc.frequency.setValueAtTime(800, now)
+    osc.frequency.exponentialRampToValueAtTime(100, now + 0.08)
+    gain.gain.setValueAtTime(0.5, now)
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08)
+
+    osc.connect(gain)
+    gain.connect(popAudioContext.destination)
+    osc.start(now)
+    osc.stop(now + 0.08)
+  }
+
+  if (popAudioContext.state === 'suspended') {
+    popAudioContext.resume().then(startSound).catch(() => {})
+  } else startSound()
+}
+
+function playGearRotate(duration = 0.3) {
+  const AudioContext = window.AudioContext || window.webkitAudioContext
+  if (!AudioContext) return
+  gearAudioContext ??= new AudioContext()
+
+  const startSound = () => {
+    const now = gearAudioContext.currentTime
+    const clickCount = Math.max(3, Math.round(duration * 2))
+    const interval = duration / clickCount
+
+    for (let index = 0; index < clickCount; index += 1) {
+      const clickTime = now + index * interval
+      const body = gearAudioContext.createOscillator()
+      const sparkle = gearAudioContext.createOscillator()
+      const bodyGain = gearAudioContext.createGain()
+      const sparkleGain = gearAudioContext.createGain()
+
+      body.type = 'triangle'
+      body.frequency.setValueAtTime(720 + (index % 2) * 90, clickTime)
+      body.frequency.exponentialRampToValueAtTime(260, clickTime + 0.035)
+      bodyGain.gain.setValueAtTime(0.03, clickTime)
+      bodyGain.gain.exponentialRampToValueAtTime(0.001, clickTime + 0.035)
+
+      sparkle.type = 'sine'
+      sparkle.frequency.setValueAtTime(2200 + (index % 3) * 180, clickTime)
+      sparkle.frequency.exponentialRampToValueAtTime(900, clickTime + 0.018)
+      sparkleGain.gain.setValueAtTime(0.05, clickTime)
+      sparkleGain.gain.exponentialRampToValueAtTime(0.001, clickTime + 0.018)
+
+      body.connect(bodyGain)
+      sparkle.connect(sparkleGain)
+      bodyGain.connect(gearAudioContext.destination)
+      sparkleGain.connect(gearAudioContext.destination)
+      body.start(clickTime)
+      sparkle.start(clickTime)
+      body.stop(clickTime + 0.04)
+      sparkle.stop(clickTime + 0.022)
+    }
+  }
+
+  if (gearAudioContext.state === 'suspended') {
+    gearAudioContext.resume().then(startSound).catch(() => {})
+  } else startSound()
+}
 
 // Keep the running score between levels and page reloads in this browser tab.
 function readStoredScore() {
@@ -43,6 +118,8 @@ function App() {
   const [score, setScore] = useState(readStoredScore)
   const [reviewedSounds, setReviewedSounds] = useState(() => new Set())
   const [reviewBonusAwarded, setReviewBonusAwarded] = useState(false)
+  const [musicPlaying, setMusicPlaying] = useState(false)
+  const [soundEffectsEnabled, setSoundEffectsEnabled] = useState(true)
   const [aimAngle, setAimAngle] = useState(0)
   const [trajectory, setTrajectory] = useState({ width: 0, height: 0, points: [], fullPoints: [], candidates: [] })
   const playfieldRef = useRef(null)
@@ -102,10 +179,11 @@ function App() {
   const progress = useMemo(() => initialBubbleCount ? Math.min(100, Math.max(0, (1 - remainingBubbleCount / initialBubbleCount) * 100)) : 0, [initialBubbleCount, remainingBubbleCount])
 
   const speak = useCallback((bubble) => {
-    if (!bubble?.audio) return
+    if (!soundEffectsEnabled || !bubble?.audio) return
     const audio = new Audio(bubble.audio)
+    audio.volume = 1
     audio.play().catch(() => {})
-  }, [])
+  }, [soundEffectsEnabled])
 
   const addScore = useCallback((amount) => {
     if (!amount) return
@@ -116,6 +194,51 @@ function App() {
   useEffect(() => {
     window.sessionStorage.setItem(SCORE_STORAGE_KEY, String(score))
   }, [score])
+
+  useEffect(() => {
+    let disposed = false
+    const startAfterInteraction = async () => {
+      try {
+        await startBackgroundMusic()
+        if (!disposed) setMusicPlaying(true)
+        window.removeEventListener('pointerdown', startAfterInteraction)
+      } catch {
+        // Browsers may block autoplay until the user interacts with the page.
+      }
+    }
+
+    startAfterInteraction()
+    window.addEventListener('pointerdown', startAfterInteraction, { once: true })
+
+    return () => {
+      disposed = true
+      window.removeEventListener('pointerdown', startAfterInteraction)
+      stopBackgroundMusic()
+    }
+  }, [])
+
+  const toggleMusic = useCallback(async () => {
+    if (musicPlaying) {
+      stopBackgroundMusic()
+      setMusicPlaying(false)
+      return
+    }
+
+    try {
+      await startBackgroundMusic()
+      setMusicPlaying(true)
+    } catch {
+      setMusicPlaying(false)
+    }
+  }, [musicPlaying])
+
+  const toggleSoundEffects = useCallback(() => {
+    setSoundEffectsEnabled((enabled) => !enabled)
+  }, [])
+
+  const playAimSound = useCallback(() => {
+    if (soundEffectsEnabled) playGearRotate()
+  }, [soundEffectsEnabled])
 
   const { complete: allSoundsReviewed } = reviewProgress(pool, reviewedSounds)
 
@@ -172,14 +295,20 @@ function App() {
     setBoard(nextBoard)
     setBubbleIndex((value) => value + 1)
     setMessage('')
+    const found = findConnectedGroup(nextBoard, targetRow, targetCol, current.id)
+    const cleared = found.size >= 3 ? found : new Set()
+    if (cleared.size) {
+      speak(current)
+    } else {
+      if (soundEffectsEnabled) playPopSound()
+    }
     setTimeout(() => {
-      const found = findConnectedGroup(nextBoard, targetRow, targetCol, current.id)
-      const cleared = found.size >= 3 ? found : new Set()
       const settledBoard = cleared.size ? clearBubbleGroup(nextBoard, cleared) : nextBoard
       if (cleared.size) {
         setMessage(`${current.devanagari} · ${current.iast} — Great match!`)
-        speak(current)
-      } else setMessage('Find two more matching sounds to pop a group!')
+      } else {
+        setMessage('Find two more matching sounds to pop a group!')
+      }
       const liftedBoard = liftLooseBubbles(settledBoard, { rows: ROWS, cols: COLS })
       const fieldRect = field.getBoundingClientRect()
       const dangerY = fieldRect.bottom - fieldRect.height * 0.2
@@ -200,9 +329,9 @@ function App() {
       setBoard(liftedBoard)
       setBusy(false)
     }, 500)
-  }, [addScore, aimAngle, board, busy, current, gameOver, getPlacementCandidates, levelComplete, speak, traceShot])
+  }, [addScore, aimAngle, board, busy, current, gameOver, getPlacementCandidates, levelComplete, soundEffectsEnabled, speak, traceShot])
 
-  useKeyboardAim({ onShoot: shoot, setAimAngle, step: AIM_STEP })
+  useKeyboardAim({ aimAngle, onShoot: shoot, onAimChange: playAimSound, setAimAngle, step: AIM_STEP })
 
   useEffect(() => {
     const updateTrajectory = () => {
@@ -235,7 +364,7 @@ function App() {
   if (!levels) return <main className="loading"><span className="brand-mark">अ</span><p>{message || 'Getting your Sanskrit bubbles ready…'}</p></main>
 
   return <main className="app-shell">
-    <header className="topbar"><a className="brand" href="https://zatam2.vercel.app" aria-label="Home"><span className="brand-mark">🏠</span><span>zat.am</span></a><div className="top-note brand-script"><img src="/SanskritBubble_Logo.png" alt="Sanskrit Bubble" /></div><button className="icon-button" aria-label="Sound effects">♫</button></header>
+    <header className="topbar"><a className="brand" href="https://zatam2.vercel.app" aria-label="Home"><span className="brand-mark">🏠</span><span>zat.am</span></a><div className="top-note brand-script"><img src="/SanskritBubble_Logo.png" alt="Sanskrit Bubble" /></div><div className="topbar-actions"><button className="icon-button" type="button" aria-label={musicPlaying ? 'Mute background music' : 'Play background music'} aria-pressed={musicPlaying} onClick={toggleMusic}>{musicPlaying ? '🔊' : '🔇'}</button><button className="icon-button" type="button" aria-label={soundEffectsEnabled ? 'Mute sound effects' : 'Play sound effects'} aria-pressed={soundEffectsEnabled} onClick={toggleSoundEffects}>{soundEffectsEnabled ? '🔔' : '🔕'}</button></div></header>
     <section className="game-layout">
       <div className="game-column">
         <div className="lesson-row"><div><div className="eyebrow">{levelId.replace('_', ' ').toUpperCase()}</div><h1>{level?.level_title?.replace(/^Lesson \d+: /, '') || 'Sanskrit vowels'}</h1></div><div className="title-progress"><div className="progress-head"><span>LEVEL PROGRESS</span><span>{Math.round(progress)}%</span></div><div className="progress-track"><span style={{ width: `${progress}%` }} /></div></div><div className="title-stats"><div><span className="stat-label">SCORE</span><strong key={score} className="score-value">{String(score).padStart(4, '0')}</strong></div></div></div>
