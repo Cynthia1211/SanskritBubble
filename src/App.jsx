@@ -63,21 +63,12 @@ function App() {
   const pool = useMemo(() => level?.bubble_pool ?? [], [level])
   const colorOrder = useMemo(() => getLevelColors(levelId, pool.length), [levelId, pool.length])
   const hasBubbles = board.some((row) => row.some(Boolean))
-  const [bubbleIndex, setBubbleIndex] = useState(0)
-  const [randomizedPool, setRandomizedPool] = useState([])
-  useEffect(() => {
-    /* eslint-disable react-hooks/set-state-in-effect */
-    setRandomizedPool(shuffleItems(pool))
-    setBubbleIndex(0)
-    /* eslint-enable react-hooks/set-state-in-effect */
-  }, [levelId, pool])
-  const activePool = useMemo(() => {
-    const presentSounds = new Set(board.flat().filter(Boolean).map((bubble) => bubble.id))
-    const available = randomizedPool.filter((item) => presentSounds.has(item.id))
-    return available.length ? available : randomizedPool
-  }, [board, randomizedPool])
-  const current = hasBubbles && activePool.length ? activePool[bubbleIndex % activePool.length] : null
-  const next = hasBubbles && activePool.length ? activePool[(bubbleIndex + 1) % activePool.length] : null
+  const [shooterQueue, setShooterQueue] = useState([])
+  // Keep the preview in an explicit queue. Deriving it from the changing board
+  // makes NEXT jump when a bubble is cleared or gravity changes the board.
+  const current = hasBubbles && shooterQueue.length ? shooterQueue[0] : null
+  const next = hasBubbles && shooterQueue.length > 1 ? shooterQueue[1] : null
+  const loadedBubble = busy ? next : current
   const soundGlyphWidth = useMemo(() => {
     const segmenter = typeof Intl.Segmenter === 'function'
       ? new Intl.Segmenter('hi', { granularity: 'grapheme' })
@@ -99,15 +90,17 @@ function App() {
   const resetGame = useCallback(() => {
     if (!level) return
     const freshBoard = liftLooseBubbles(createBoard(level, { rows: ROWS, cols: COLS }), { rows: ROWS, cols: COLS })
+    const presentSounds = new Set(freshBoard.flat().filter(Boolean).map((bubble) => bubble.id))
+    const initialQueue = shuffleItems(pool).filter((item) => presentSounds.has(item.id))
     setBoard(freshBoard)
     setInitialBubbleCount(freshBoard.flat().filter(Boolean).length)
-    setBubbleIndex(0)
+    setShooterQueue(initialQueue.length ? initialQueue : shuffleItems(pool))
     setGameOver(false)
     setLevelComplete(false)
     setReviewedSounds(new Set())
     setReviewBonusAwarded(false)
     setMessage('Aim with ← → and press SPACE to pop!')
-  }, [level])
+  }, [level, pool])
 
   useEffect(() => {
     if (!level) return
@@ -120,8 +113,8 @@ function App() {
   const remainingBubbleCount = board.flat().filter(Boolean).length
   const progress = useMemo(() => initialBubbleCount ? Math.min(100, Math.max(0, (1 - remainingBubbleCount / initialBubbleCount) * 100)) : 0, [initialBubbleCount, remainingBubbleCount])
 
-  const speak = useCallback((bubble) => {
-    if (!soundEffectsEnabled || !bubble?.audio) return
+  const speak = useCallback((bubble, { force = false } = {}) => {
+    if ((!soundEffectsEnabled && !force) || !bubble?.audio) return
     const audio = new Audio(bubble.audio)
     audio.volume = 1
     audio.play().catch(() => {})
@@ -186,7 +179,7 @@ function App() {
 
   // Play one sound of the completed level and remember that it was reviewed.
   const reviewSound = useCallback((item) => {
-    speak(item)
+    speak(item, { force: true })
     setReviewedSounds((previous) => {
       const itemId = item.id ?? item.iast
       if (previous.has(itemId)) return previous
@@ -235,7 +228,6 @@ function App() {
     const { row: targetRow, col: targetCol } = target
     nextBoard[targetRow][targetCol] = current
     setBoard(nextBoard)
-    setBubbleIndex(Math.floor(Math.random() * activePool.length))
     setMessage('')
     const found = findConnectedGroup(nextBoard, targetRow, targetCol, current.id)
     const cleared = found.size >= 3 ? found : new Set()
@@ -269,9 +261,20 @@ function App() {
         setMessage(`Level cleared! +${LEVEL_COMPLETE_BONUS} points!`)
       }
       setBoard(liftedBoard)
+      // Advance only after matching and gravity settle. Any queued sound that
+      // no longer exists on the board must be skipped before showing NEXT.
+      const presentIds = new Set(liftedBoard.flat().filter(Boolean).map((bubble) => bubble.id))
+      const available = pool.filter((item) => presentIds.has(item.id))
+      setShooterQueue((previous) => {
+        const remaining = previous.slice(1).filter((item) => presentIds.has(item.id))
+        while (remaining.length < 2 && available.length) {
+          remaining.push(available[Math.floor(Math.random() * available.length)])
+        }
+        return remaining
+      })
       setBusy(false)
     }, 500)
-  }, [activePool.length, addScore, aimAngle, board, busy, current, gameOver, getPlacementCandidates, levelComplete, soundEffectsEnabled, speak, traceShot])
+  }, [addScore, aimAngle, board, busy, current, gameOver, getPlacementCandidates, levelComplete, pool, soundEffectsEnabled, speak, traceShot])
 
   useKeyboardAim({ aimAngle, onShoot: shoot, onAimChange: playAimSound, setAimAngle, step: AIM_STEP })
 
@@ -301,7 +304,7 @@ function App() {
     updateTrajectory()
     window.addEventListener('resize', updateTrajectory)
     return () => window.removeEventListener('resize', updateTrajectory)
-  }, [aimAngle, board, bubbleIndex, levels, showAimGuide, traceShot, getPlacementCandidates])
+  }, [aimAngle, board, levels, showAimGuide, traceShot, getPlacementCandidates])
 
   if (!levels) return <main className="loading"><span className="brand-mark">अ</span><p>{message || 'Getting your Sanskrit bubbles ready…'}</p></main>
 
@@ -327,7 +330,7 @@ function App() {
           </svg>
           <div className="danger-line" />
           <div className="game-feedback"><span className="feedback-icon">✦</span>{message}</div>
-          <div className="shooter-area"><div className="next-bubble"><small>NEXT</small>{next && <div className={`bubble mini ${colorOrder[pool.findIndex((item) => item.id === next.id) % colorOrder.length]}`}><span className="translit" style={{ fontSize: fitBubbleFont(next.iast, 16, 10) }}>{next.iast}</span></div>}</div><div className="shooter">{current && <div className={`bubble loaded ${colorOrder[pool.findIndex((item) => item.id === current.id) % colorOrder.length]}`}><span className="translit" style={{ fontSize: fitBubbleFont(current.iast, 22, 18) }}>{current.iast}</span></div>}</div><div className="shoot-hint"><span className="keycap">←</span> <span className="keycap">→</span> AIM &nbsp; <span className="keycap space-key">SPACE</span> FIRE</div></div>
+          <div className="shooter-area"><div className="next-bubble"><small>NEXT</small>{!busy && next && <div className={`bubble mini ${colorOrder[pool.findIndex((item) => item.id === next.id) % colorOrder.length]}`}><span className="translit" style={{ fontSize: fitBubbleFont(next.iast, 16, 10) }}>{next.iast}</span></div>}</div><div className="shooter">{loadedBubble && <div className={`bubble loaded ${colorOrder[pool.findIndex((item) => item.id === loadedBubble.id) % colorOrder.length]}`}><span className="translit" style={{ fontSize: fitBubbleFont(loadedBubble.iast, 22, 18) }}>{loadedBubble.iast}</span></div>}</div><div className="shoot-hint"><span className="keycap">←</span> <span className="keycap">→</span> AIM &nbsp; <span className="keycap space-key">SPACE</span> FIRE</div></div>
           <div className="field-floor" />
         </div>
         {gameOver && <div className="level-complete-overlay"><section className="level-complete-modal game-over-modal" role="dialog" aria-modal="true" aria-labelledby="game-over-title">
@@ -338,7 +341,7 @@ function App() {
           <div className="completion-word-list">{pool.map((item, index) => <div className="completion-word" key={`retry-${levelId}-${item.id ?? item.iast}`}>
             <span className={`sound-glyph ${colorOrder[index % colorOrder.length]}`}>{item.devanagari}</span>
             <span className="completion-word-text"><strong>{item.iast}</strong><small>{item.description ?? item.meaning ?? ''}</small></span>
-            <button className="completion-play" aria-label={`Play ${item.iast}`} onClick={() => speak(item)}>▶</button>
+            <button className="completion-play" aria-label={`Play ${item.iast}`} onClick={() => speak(item, { force: true })}>▶</button>
           </div>)}</div>
           <button className="completion-continue" onClick={resetGame}>PLAY AGAIN</button>
         </section></div>}
@@ -352,7 +355,7 @@ function App() {
         </section></div>}
         <div className="under-field"><span>✧&nbsp; Match 3 connected sounds to pop them!</span><button onClick={resetGame}>Restart <span>↻</span></button></div>
       </div>
-      <div className="side-column"><label className="side-level-select"><select value={levelId} onChange={(event) => setLevelId(event.target.value)}>{Object.entries(levels).map(([id, item], index) => <option key={id} value={id}>{`LEVEL ${index + 1}: ${item.level_title}`}</option>)}</select></label><aside className="lesson-card"><div className="card-head"><div className="eyebrow">SOUNDS IN THIS LEVEL</div></div><p className="card-description">Listen, learn, and match the Sanskrit sounds.</p><div className="sound-list">{pool.map((item, i) => <button className="sound-item" key={`${levelId}-${i}-${item.iast}`} onClick={() => speak(item)}><span className={`sound-glyph ${colorOrder[i % colorOrder.length]}`} style={{ width: soundGlyphWidth, fontSize: fitBubbleFont(item.devanagari, 22, 12) }}>{item.devanagari}</span><span className="sound-word"><strong>{item.iast}</strong><small>{item.description ?? item.meaning ?? ''}</small></span><span className="play-icon">▶</span></button>)}</div><div className="tip-box"><span>✧</span><p><strong>Sound tip</strong><br />Tap a sound to hear it. Try saying it out loud!</p></div></aside></div>
+      <div className="side-column"><label className="side-level-select"><select value={levelId} onChange={(event) => setLevelId(event.target.value)}>{Object.entries(levels).map(([id, item], index) => <option key={id} value={id}>{`LEVEL ${index + 1}: ${item.level_title}`}</option>)}</select></label><aside className="lesson-card"><div className="card-head"><div className="eyebrow">SOUNDS IN THIS LEVEL</div></div><p className="card-description">Listen, learn, and match the Sanskrit sounds.</p><div className="sound-list">{pool.map((item, i) => <button className="sound-item" key={`${levelId}-${i}-${item.iast}`} onClick={() => speak(item, { force: true })}><span className={`sound-glyph ${colorOrder[i % colorOrder.length]}`} style={{ width: soundGlyphWidth, fontSize: fitBubbleFont(item.devanagari, 22, 12) }}>{item.devanagari}</span><span className="sound-word"><strong>{item.iast}</strong><small>{item.description ?? item.meaning ?? ''}</small></span><span className="play-icon">▶</span></button>)}</div><div className="tip-box"><span>✧</span><p><strong>Sound tip</strong><br />Tap a sound to hear it. Try saying it out loud!</p></div></aside></div>
     </section>
     <footer className="app-footer"><span>Start with a sound. Discover an ancient script.</span><span>शुभम्&nbsp; ✦ &nbsp;Happy learning</span></footer>
   </main>
