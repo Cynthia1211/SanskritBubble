@@ -10,6 +10,8 @@ import { fetchLevels } from './services/levelService'
 import { fitBubbleFont } from './utils/bubbleText'
 import { LevelReviewCard } from './components/LevelReviewCard'
 import { reviewProgress } from './utils/reviewProgress'
+import { startBGM as startBackgroundMusic, stopBGM as stopBackgroundMusic } from './assets/Tone'
+import { playGearRotate, playPopSound } from './assets/SoundEffects'
 
 const COLS = 14
 const ROWS = 10
@@ -18,7 +20,6 @@ const COLORS = ['coral', 'mint', 'gold', 'blue', 'lilac', 'teal', 'rose', 'orang
 const SCORE_STORAGE_KEY = 'sanskrit-bubble-score'
 const LEVEL_COMPLETE_BONUS = 50
 const REVIEW_BONUS = 50
-
 // Keep the running score between levels and page reloads in this browser tab.
 function readStoredScore() {
   const stored = Number(window.sessionStorage.getItem(SCORE_STORAGE_KEY))
@@ -29,6 +30,15 @@ function getLevelColors(levelId, colorCount) {
   const levelNumber = Number(levelId.match(/\d+/)?.[0]) || 1
   const start = (levelNumber - 1) % COLORS.length
   return Array.from({ length: colorCount }, (_, index) => COLORS[(start + index) % COLORS.length])
+}
+
+function shuffleItems(items) {
+  const shuffled = [...items]
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1))
+    ;[shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]]
+  }
+  return shuffled
 }
 
 function App() {
@@ -43,6 +53,8 @@ function App() {
   const [score, setScore] = useState(readStoredScore)
   const [reviewedSounds, setReviewedSounds] = useState(() => new Set())
   const [reviewBonusAwarded, setReviewBonusAwarded] = useState(false)
+  const [musicPlaying, setMusicPlaying] = useState(false)
+  const [soundEffectsEnabled, setSoundEffectsEnabled] = useState(true)
   const [aimAngle, setAimAngle] = useState(0)
   const [trajectory, setTrajectory] = useState({ width: 0, height: 0, points: [], fullPoints: [], candidates: [] })
   const playfieldRef = useRef(null)
@@ -52,11 +64,18 @@ function App() {
   const colorOrder = useMemo(() => getLevelColors(levelId, pool.length), [levelId, pool.length])
   const hasBubbles = board.some((row) => row.some(Boolean))
   const [bubbleIndex, setBubbleIndex] = useState(0)
+  const [randomizedPool, setRandomizedPool] = useState([])
+  useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect */
+    setRandomizedPool(shuffleItems(pool))
+    setBubbleIndex(0)
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [levelId, pool])
   const activePool = useMemo(() => {
     const presentSounds = new Set(board.flat().filter(Boolean).map((bubble) => bubble.id))
-    const available = pool.filter((item) => presentSounds.has(item.id))
-    return available.length ? available : pool
-  }, [board, pool])
+    const available = randomizedPool.filter((item) => presentSounds.has(item.id))
+    return available.length ? available : randomizedPool
+  }, [board, randomizedPool])
   const current = hasBubbles && activePool.length ? activePool[bubbleIndex % activePool.length] : null
   const next = hasBubbles && activePool.length ? activePool[(bubbleIndex + 1) % activePool.length] : null
   const soundGlyphWidth = useMemo(() => {
@@ -102,10 +121,11 @@ function App() {
   const progress = useMemo(() => initialBubbleCount ? Math.min(100, Math.max(0, (1 - remainingBubbleCount / initialBubbleCount) * 100)) : 0, [initialBubbleCount, remainingBubbleCount])
 
   const speak = useCallback((bubble) => {
-    if (!bubble?.audio) return
+    if (!soundEffectsEnabled || !bubble?.audio) return
     const audio = new Audio(bubble.audio)
+    audio.volume = 1
     audio.play().catch(() => {})
-  }, [])
+  }, [soundEffectsEnabled])
 
   const addScore = useCallback((amount) => {
     if (!amount) return
@@ -116,6 +136,51 @@ function App() {
   useEffect(() => {
     window.sessionStorage.setItem(SCORE_STORAGE_KEY, String(score))
   }, [score])
+
+  useEffect(() => {
+    let disposed = false
+    const startAfterInteraction = async () => {
+      try {
+        await startBackgroundMusic()
+        if (!disposed) setMusicPlaying(true)
+        window.removeEventListener('pointerdown', startAfterInteraction)
+      } catch {
+        // Browsers may block autoplay until the user interacts with the page.
+      }
+    }
+
+    startAfterInteraction()
+    window.addEventListener('pointerdown', startAfterInteraction, { once: true })
+
+    return () => {
+      disposed = true
+      window.removeEventListener('pointerdown', startAfterInteraction)
+      stopBackgroundMusic()
+    }
+  }, [])
+
+  const toggleMusic = useCallback(async () => {
+    if (musicPlaying) {
+      stopBackgroundMusic()
+      setMusicPlaying(false)
+      return
+    }
+
+    try {
+      await startBackgroundMusic()
+      setMusicPlaying(true)
+    } catch {
+      setMusicPlaying(false)
+    }
+  }, [musicPlaying])
+
+  const toggleSoundEffects = useCallback(() => {
+    setSoundEffectsEnabled((enabled) => !enabled)
+  }, [])
+
+  const playAimSound = useCallback(() => {
+    if (soundEffectsEnabled) playGearRotate()
+  }, [soundEffectsEnabled])
 
   const { complete: allSoundsReviewed } = reviewProgress(pool, reviewedSounds)
 
@@ -170,16 +235,22 @@ function App() {
     const { row: targetRow, col: targetCol } = target
     nextBoard[targetRow][targetCol] = current
     setBoard(nextBoard)
-    setBubbleIndex((value) => value + 1)
+    setBubbleIndex(Math.floor(Math.random() * activePool.length))
     setMessage('')
+    const found = findConnectedGroup(nextBoard, targetRow, targetCol, current.id)
+    const cleared = found.size >= 3 ? found : new Set()
+    if (cleared.size) {
+      speak(current)
+    } else {
+      if (soundEffectsEnabled) playPopSound()
+    }
     setTimeout(() => {
-      const found = findConnectedGroup(nextBoard, targetRow, targetCol, current.id)
-      const cleared = found.size >= 3 ? found : new Set()
       const settledBoard = cleared.size ? clearBubbleGroup(nextBoard, cleared) : nextBoard
       if (cleared.size) {
         setMessage(`${current.devanagari} · ${current.iast} — Great match!`)
-        speak(current)
-      } else setMessage('Find two more matching sounds to pop a group!')
+      } else {
+        setMessage('Find two more matching sounds to pop a group!')
+      }
       const liftedBoard = liftLooseBubbles(settledBoard, { rows: ROWS, cols: COLS })
       const fieldRect = field.getBoundingClientRect()
       const dangerY = fieldRect.bottom - fieldRect.height * 0.2
@@ -200,9 +271,9 @@ function App() {
       setBoard(liftedBoard)
       setBusy(false)
     }, 500)
-  }, [addScore, aimAngle, board, busy, current, gameOver, getPlacementCandidates, levelComplete, speak, traceShot])
+  }, [activePool.length, addScore, aimAngle, board, busy, current, gameOver, getPlacementCandidates, levelComplete, soundEffectsEnabled, speak, traceShot])
 
-  useKeyboardAim({ onShoot: shoot, setAimAngle, step: AIM_STEP })
+  useKeyboardAim({ aimAngle, onShoot: shoot, onAimChange: playAimSound, setAimAngle, step: AIM_STEP })
 
   useEffect(() => {
     const updateTrajectory = () => {
@@ -235,7 +306,7 @@ function App() {
   if (!levels) return <main className="loading"><span className="brand-mark">अ</span><p>{message || 'Getting your Sanskrit bubbles ready…'}</p></main>
 
   return <main className="app-shell">
-    <header className="topbar"><a className="brand" href="https://zatam2.vercel.app" aria-label="Home"><span className="brand-mark">🏠</span><span>zat.am</span></a><div className="top-note brand-script"><img src="/SanskritBubble_Logo.png" alt="Sanskrit Bubble" /></div><button className="icon-button" aria-label="Sound effects">♫</button></header>
+    <header className="topbar"><a className="brand" href="https://zatam2.vercel.app" aria-label="Home"><span className="brand-mark">🏠</span><span>zat.am</span></a><div className="top-note brand-script"><img src="/SanskritBubble_Logo.png" alt="Sanskrit Bubble" /></div><div className="topbar-actions"><button className="icon-button" type="button" aria-label={musicPlaying ? 'Mute background music' : 'Play background music'} aria-pressed={musicPlaying} onClick={toggleMusic}>{musicPlaying ? '🔊' : '🔇'}</button><button className="icon-button" type="button" aria-label={soundEffectsEnabled ? 'Mute sound effects' : 'Play sound effects'} aria-pressed={soundEffectsEnabled} onClick={toggleSoundEffects}>{soundEffectsEnabled ? '🔔' : '🔕'}</button></div></header>
     <section className="game-layout">
       <div className="game-column">
         <div className="lesson-row"><div><div className="eyebrow">{levelId.replace('_', ' ').toUpperCase()}</div><h1>{level?.level_title?.replace(/^Lesson \d+: /, '') || 'Sanskrit vowels'}</h1></div><div className="title-progress"><div className="progress-head"><span>LEVEL PROGRESS</span><span>{Math.round(progress)}%</span></div><div className="progress-track"><span style={{ width: `${progress}%` }} /></div></div><div className="title-stats"><div><span className="stat-label">SCORE</span><strong key={score} className="score-value">{String(score).padStart(4, '0')}</strong></div></div></div>
