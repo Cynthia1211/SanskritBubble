@@ -934,7 +934,9 @@ body {
 
 .sound-list {
     gap: 10px;
-    height: 340px;
+    height: 345px;
+    padding-top: 2px;
+    padding-bottom: 7px;
     padding-right: 6px;
     overflow-y: auto;
     align-content: start
