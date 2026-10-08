@@ -53,7 +53,7 @@ function App() {
   const [score, setScore] = useState(readStoredScore)
   const [reviewedSounds, setReviewedSounds] = useState(() => new Set())
   const [reviewBonusAwarded, setReviewBonusAwarded] = useState(false)
-  const [musicPlaying, setMusicPlaying] = useState(false)
+  const [musicPlaying, setMusicPlaying] = useState(true)
   const [soundEffectsEnabled, setSoundEffectsEnabled] = useState(true)
   const [aimAngle, setAimAngle] = useState(0)
   const [trajectory, setTrajectory] = useState({ width: 0, height: 0, points: [], fullPoints: [], candidates: [] })
