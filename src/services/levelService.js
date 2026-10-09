@@ -1,5 +1,5 @@
 import { collection, getDocs } from 'firebase/firestore'
-import { levelsDb } from '../../levels-config.js'
+import { levelsDb } from '../config/firebase.js'
 
 function getLevelId(value, fallback) {
   const id = String(value ?? fallback)
