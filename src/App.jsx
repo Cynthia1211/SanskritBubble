@@ -84,7 +84,7 @@ function App() {
     fetchLevels().then((data) => {
       setLevels(data)
       setLevelId(Object.keys(data)[0])
-    }).catch(() => setMessage('Could not load public/levels.json'))
+    }).catch(() => setMessage('Could not load levels from Firebase'))
   }, [])
 
   const resetGame = useCallback(() => {
