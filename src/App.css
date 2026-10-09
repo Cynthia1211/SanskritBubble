@@ -60,11 +60,11 @@
 
 .navigation-logo {
     position: absolute;
-    top: 78px;
+    top: 80px;
     right: 0;
     z-index: 10;
     display: block;
-    width: 300px;
+    width: 330px;
     height: auto;
     object-fit: contain
 }
@@ -129,22 +129,36 @@
     background-image: radial-gradient(circle at 13% 24%, #ffffff91 0 5px, transparent 6px), radial-gradient(circle at 82% 32%, #ffffff91 0 7px, transparent 8px), radial-gradient(circle at 91% 70%, #ffffff91 0 4px, transparent 5px), linear-gradient(180deg, #a9e8ff 0%, #dbf7ff 79.5%, #c4f1b1 80%, #c4f1b1 100%)
 }
 
+.playfield::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    z-index: 0;
+    background: rgba(255, 255, 255, 0.3);
+    pointer-events: none
+}
+
 .field-glow {
     display: none
 }
 
 .field-top {
     position: absolute;
-    top: 18px;
+    top: 14px;
     left: 28px;
     right: 28px;
     z-index: 2;
     display: flex;
+    align-items: flex-end;
     justify-content: space-between;
     color: #5986a0;
     font-size: 10px;
     font-weight: 800;
-    letter-spacing: .12em
+    letter-spacing: .12em;
+    line-height: 22px
 }
 
 .field-score {
@@ -153,9 +167,10 @@
     right: 28px;
     z-index: 3;
     display: flex;
-    align-items: baseline;
+    align-items: flex-end;
     gap: 38px;
-    color: #29334a
+    color: #29334a;
+    line-height: 22px
 }
 
 .field-score span {
@@ -178,6 +193,13 @@
     flex-direction: column;
     align-items: flex-end;
     gap: 7px
+}
+
+.level-position {
+    color: #5986a0;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .12em
 }
 
 .restart-button {
@@ -1261,6 +1283,10 @@ body {
         margin-top: 0;
         height: 500px;
         min-height: 500px
+    }
+
+    .playfield::before {
+        height: 50px
     }
 
     .bubble-grid {

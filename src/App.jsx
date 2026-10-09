@@ -330,7 +330,7 @@ function App() {
   if (!levels) return <main className="loading"><span className="brand-mark">अ</span><p>{message || 'Getting your Sanskrit bubbles ready…'}</p></main>
 
   return <main className="app-shell">
-    <header className="topbar" aria-label="Navigation bar"><img className="navigation-logo" src="/SanskritBubble_Logo-2.png" alt="Sanskrit Bubble" /></header>
+    <header className="topbar" aria-label="Navigation bar"><img className="navigation-logo" src="../public/SanskritBubble_Logo-1.png" alt="Sanskrit Bubble" /></header>
     <section className="game-layout">
       <div className="game-column">
         <div className="lesson-row"><div><div className="eyebrow">{levelId.replace('_', ' ').toUpperCase()}</div><h1>{level?.level_title?.replace(/^Lesson \d+: /, '') || 'Sanskrit vowels'}</h1></div><div className="lesson-audio-controls game-controls" aria-label="Game audio controls"><button className="icon-button" type="button" aria-label={musicPlaying ? 'Mute background music' : 'Play background music'} aria-pressed={musicPlaying} onClick={toggleMusic}>{musicPlaying ? '🔊' : '🔇'}</button><button className="icon-button" type="button" aria-label={soundEffectsEnabled ? 'Mute sound effects' : 'Play sound effects'} aria-pressed={soundEffectsEnabled} onClick={toggleSoundEffects}>{soundEffectsEnabled ? '🔔' : '🔕'}</button></div></div>
@@ -338,7 +338,7 @@ function App() {
           <div className="field-glow" />
           <div className="field-top"><span><i /> CLEAR ALL THE BUBBLES</span></div>
           <div className="field-score"><span>SCORE</span><strong key={score}>{String(score).padStart(4, '0')}</strong></div>
-          <div className="top-right-actions"><button className="restart-button" onClick={resetGame}>Restart <span>↻</span></button></div>
+          <div className="top-right-actions"><div className="level-position">LEVEL {levelIds.indexOf(levelId) + 1}/{levelIds.length}</div><button className="restart-button" onClick={resetGame}>Restart the level <span>↻</span></button></div>
           <div className="shoot-hint"><div className="control-hint"><span className="keycap">←</span> <span className="keycap">→</span> AIM &nbsp; <span className="keycap space-key">SPACE</span> FIRE</div><span className="game-tip">✧&nbsp; Match 3 connected sounds to pop them!</span></div>
           <div className="bubble-grid" style={{ '--cols': COLS }}>
             {board.map((row, r) => <div className={`bubble-grid-row ${r % 2 ? 'offset-row' : ''}`} key={`row-${r}`}>{row.map((bubble, c) => <div key={`${r}-${c}`} data-row={r} data-col={c} className={`bubble-cell ${bubble ? `bubble ${colorOrder[pool.findIndex((item) => item.id === bubble.id) % colorOrder.length]}` : 'empty'}`} aria-label={bubble?.devanagari}>
@@ -380,7 +380,7 @@ function App() {
       </div>
       <div className="side-column"><label className="side-level-select"><select value={levelId} onChange={(event) => setLevelId(event.target.value)}>{Object.entries(levels).map(([id, item], index) => <option key={id} value={id}>{`LEVEL ${index + 1}: ${item.level_title}`}</option>)}</select></label><aside className="lesson-card"><div className="card-head"><div className="eyebrow">SOUNDS IN THIS LEVEL</div></div><p className="card-description">Listen, learn, and match the Sanskrit sounds.</p><div className="sound-list">{pool.map((item, i) => <button className="sound-item" key={`${levelId}-${i}-${item.iast}`} onClick={() => speak(item, { force: true })}><span className={`sound-glyph ${colorOrder[i % colorOrder.length]}`} style={{ width: soundGlyphWidth, fontSize: fitBubbleFont(item.devanagari, 22, 12) }}>{item.devanagari}</span><span className="sound-word"><strong>{item.iast}</strong><small>{item.description ?? item.meaning ?? ''}</small></span><span className="play-icon">▶</span></button>)}</div><div className="tip-box"><span>✧</span><p><strong>Sound tip</strong><br />Tap a sound to hear it. Try saying it out loud!</p></div></aside></div>
     </section>
-    <footer className="app-footer"><span>Start with a sound. Discover an ancient script.</span><span>शुभम्&nbsp; ✦ &nbsp;Happy learning</span></footer>
+    <footer className="app-footer"><span>Start with a sound. Discover an ancient script.</span><span>आनन्दमयम् अध्ययनम्&nbsp; ✦ &nbsp;Happy learning</span></footer>
   </main>
 }
 
