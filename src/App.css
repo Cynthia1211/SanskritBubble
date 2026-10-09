@@ -1,68 +1,31 @@
 .app-shell {
-    max-width: 1240px;
+    max-width: 1280px;
     padding: 0 40px;
-    margin: auto
+    margin: auto;
+    position: relative
 }
 
-.topbar .brand-script {
-    color: #29334a;
-    font-family: Georgia, 'Times New Roman', cursive;
-    font-size: 25px;
-    font-style: italic;
-    font-weight: 700;
-    letter-spacing: .02em
-}
-
-.topbar .brand-script img {
-    display: block;
-    width: auto;
-    height: 72px;
-    max-width: none;
-    object-fit: contain
-}
-
+/* Navigation and page frame */
 .topbar {
     height: 76px;
-    border-bottom: 1px solid #e6eae7;
+    position: relative;
+    border-bottom: 3px solid #29334a;
     display: flex;
     align-items: center;
     justify-content: space-between
 }
 
-.brand {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    text-decoration: none;
-    color: #23332e;
-    font: 800 21px Manrope, sans-serif;
-    letter-spacing: -1px
-}
-
 .brand-mark {
     width: 31px;
     height: 31px;
-    background: #dff1e5;
-    color: #39845b;
+    background: #ffcb45;
+    color: #29334a;
+    border: 2px solid #29334a;
     border-radius: 10px;
     display: grid;
     place-items: center;
-    font: 700 20px Georgia
-}
-
-.top-note {
-    font-size: 12px;
-    color: #86928d;
-    letter-spacing: .04em
-}
-
-.brand-script {
-    color: #29334a;
-    font-family: Georgia, 'Times New Roman', cursive;
-    font-size: 25px;
-    font-style: italic;
-    font-weight: 700;
-    letter-spacing: .02em
+    font: 700 20px Georgia;
+    box-shadow: 2px 3px 0 #29334a
 }
 
 .field-top i {
@@ -70,17 +33,47 @@
     height: 7px;
     border-radius: 50%;
     display: inline-block;
-    background: #7ac595;
+    background: #ffcd43;
     margin-right: 7px
 }
 
 .icon-button {
-    border: 1px solid #e5ebe6;
-    background: #fff;
-    border-radius: 50%;
+    border: 2px solid #29334a;
+    background: #ffcb45;
+    border-radius: 8px;
     width: 36px;
     height: 36px;
-    color: #587361
+    color: #29334a;
+    box-shadow: 2px 3px 0 #29334a;
+    font-weight: 800
+}
+
+.game-controls {
+    display: flex;
+    gap: 8px
+}
+
+.game-controls .icon-button {
+    font-size: 21px;
+    line-height: 1
+}
+
+.navigation-logo {
+    position: absolute;
+    top: 78px;
+    right: 0;
+    z-index: 10;
+    display: block;
+    width: 300px;
+    height: auto;
+    object-fit: contain
+}
+
+.side-level-select {
+    position: relative;
+    z-index: 11;
+    transform: translateY(30px);
+    pointer-events: auto
 }
 
 .game-layout {
@@ -91,11 +84,20 @@
     align-items: start
 }
 
+/* Left column: lesson heading and game board */
 .lesson-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px
+    margin-bottom: 0
+}
+
+.lesson-audio-controls.game-controls {
+    position: static;
+    margin-left: auto;
+    align-self: flex-end;
+    flex-shrink: 0;
+    transform: translate(-5px, 8px)
 }
 
 .eyebrow {
@@ -113,83 +115,104 @@
     margin: 5px 0 0
 }
 
-.stat-label {
-    display: block;
-    font-size: 15px;
-    color: #98a39d;
-    margin-bottom: 2px
-}
-
-.progress-head {
-    display: flex;
-    justify-content: space-between;
-    font-size: 10px;
-    color: #89988e;
-    margin-bottom: 7px
-}
-
-.progress-head span:last-child {
-    color: #49805b;
-    font-weight: 700
-}
-
-.progress-track {
-    height: 5px;
-    border-radius: 6px;
-    background: #e6ece7;
-    overflow: hidden
-}
-
-.progress-track span {
-    display: block;
-    height: 100%;
-    background: #7fbd8f;
-    border-radius: 6px;
-    transition: width .3s
-}
-
 .playfield {
     position: relative;
     overflow: hidden;
-    border-radius: 18px;
+    border: 3px solid #29334a;
+    border-radius: 20px;
+    box-shadow: 5px 6px 0 #29334a;
+    height: 532px;
+    margin-top: 20px;
     min-height: 532px;
     padding: 18px 28px 0;
-    background: #eaf4ed;
-    border: 1px solid #dcebe0;
-    background-image: radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, .88), transparent 58%), linear-gradient(180deg, #eef7f0 0%, #e8f3eb 68%, #e2efe6 100%)
+    background: #b9edff;
+    background-image: radial-gradient(circle at 13% 24%, #ffffff91 0 5px, transparent 6px), radial-gradient(circle at 82% 32%, #ffffff91 0 7px, transparent 8px), radial-gradient(circle at 91% 70%, #ffffff91 0 4px, transparent 5px), linear-gradient(180deg, #a9e8ff 0%, #dbf7ff 79.5%, #c4f1b1 80%, #c4f1b1 100%)
 }
 
 .field-glow {
-    position: absolute;
-    width: 390px;
-    height: 310px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, .34);
-    filter: blur(25px);
-    left: 50%;
-    top: 60px;
-    transform: translateX(-50%)
+    display: none
 }
 
 .field-top {
-    position: relative;
+    position: absolute;
+    top: 18px;
+    left: 28px;
+    right: 28px;
+    z-index: 2;
     display: flex;
     justify-content: space-between;
-    color: #93a89a;
-    font-size: 9px;
-    font-weight: 700;
+    color: #5986a0;
+    font-size: 10px;
+    font-weight: 800;
     letter-spacing: .12em
 }
 
+.field-score {
+    position: absolute;
+    top: 14px;
+    right: 28px;
+    z-index: 3;
+    display: flex;
+    align-items: baseline;
+    gap: 38px;
+    color: #29334a
+}
+
+.field-score span {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .08em
+}
+
+.field-score strong {
+    font: 800 18px 'DM Sans', sans-serif
+}
+
+.top-right-actions {
+    position: absolute;
+    top: auto;
+    bottom: 15px;
+    right: 28px;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 7px
+}
+
+.restart-button {
+    position: static;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: #29334a;
+    font-size: 10px;
+    font-weight: 800
+}
+
+.restart-button span {
+    margin-left: 5px;
+    font-size: 15px
+}
+
+.restart-button:hover {
+    color: #ed6a53
+}
+
 .bubble-grid {
-    position: relative;
+    position: absolute;
+    top: 70px;
+    left: 0;
+    transform: translateX(-15px);
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0 26px;
     z-index: 1;
-    max-width: 485px;
-    margin: 22px auto 0;
-    display: grid;
-    grid-template-columns: repeat(var(--cols), 1fr);
-    gap: 8px 10px;
-    justify-items: center
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    overflow: visible
 }
 
 .bubble-cell {
@@ -246,15 +269,19 @@
 }
 
 .game-feedback {
+    position: absolute;
+    left: 10px;
+    right: 10px;
+    bottom: 143px;
+    z-index: 2;
     height: 35px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    color: #788c7d;
-    font-size: 11px;
-    position: relative;
-    z-index: 1
+    color: #405b77;
+    font-size: 12px;
+    font-weight: 700
 }
 
 .feedback-icon {
@@ -262,9 +289,12 @@
 }
 
 .shooter-area {
-    height: 137px;
-    position: relative;
-    z-index: 1;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 8px;
+    height: 130px;
+    z-index: 2;
     display: flex;
     justify-content: center;
     align-items: flex-end;
@@ -308,10 +338,13 @@
 
 .shoot-hint {
     position: absolute;
-    right: 0;
-    bottom: 30px;
+    left: 15px;
+    bottom: 15px;
     color: #98a99b;
-    font-size: 9px
+    font-size: 9px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start
 }
 
 .shoot-hint span {
@@ -320,57 +353,31 @@
     margin-left: 4px
 }
 
+.shoot-hint .game-tip {
+    margin: 20px 0 0;
+    color: #56657e;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap
+}
+
 .field-floor {
-    position: absolute;
-    height: 19px;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(180deg, #dcebe0, #e5f0e7);
-    border-top: 1px solid #d7e7da
-}
-
-.under-field {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 4px;
-    color: #8a9890;
-    font-size: 10px
-}
-
-.under-field button {
-    border: 0;
-    background: transparent;
-    color: #738a78;
-    font-size: 10px
-}
-
-.under-field button span {
-    margin-left: 5px;
-    font-size: 15px
+    display: none
 }
 
 .lesson-card {
-    margin-top: 99px;
+    margin-top: 20px;
     padding: 23px 12px 15px;
     background: #fff;
-    border: 1px solid #e9eeea;
-    border-radius: 14px;
-    box-shadow: 0 8px 25px #283d2b08
+    border: 3px solid #29334a;
+    border-radius: 17px;
+    box-shadow: 4px 5px 0 #29334a
 }
 
 .card-head {
     display: flex;
     justify-content: space-between;
     align-items: center
-}
-
-.card-head h2 {
-    font: 700 19px Manrope, sans-serif;
-    color: #2c3a32;
-    margin: 4px 0 0;
-    letter-spacing: -.4px
 }
 
 .card-description {
@@ -471,14 +478,10 @@
 .app-footer {
     display: flex;
     justify-content: space-between;
-    border-top: 1px solid #e5ebe6;
+    border-top: 1px solid #29334a;
     padding: 15px 0 20px;
-    color: #a1aaa4;
+    color: #6a758c;
     font-size: 10px
-}
-
-.app-footer span:last-child {
-    color: #91a494
 }
 
 .loading {
@@ -486,13 +489,16 @@
     display: grid;
     place-content: center;
     justify-items: center;
-    color: #74877a
+    color: #29334a
 }
 
 .loading .brand-mark {
     width: 48px;
     height: 48px;
-    font-size: 27px
+    font-size: 27px;
+    background: #ffcb45;
+    border: 2px solid #29334a;
+    box-shadow: 3px 4px 0 #29334a
 }
 
 .loading p {
@@ -520,10 +526,6 @@
         min-height: 500px
     }
 
-    .bubble-grid {
-        gap: 7px 5px
-    }
-
     .bubble-cell.bubble {
         max-width: 46px
     }
@@ -540,10 +542,6 @@
 
     .topbar {
         height: 64px
-    }
-
-    .top-note {
-        display: none
     }
 
     .game-layout {
@@ -574,11 +572,6 @@
     .playfield {
         min-height: 470px;
         padding: 16px 12px 0
-    }
-
-    .bubble-grid {
-        gap: 7px 4px;
-        margin-top: 24px
     }
 
     .bubble-cell.bubble {
@@ -621,54 +614,6 @@ body {
     background: radial-gradient(ellipse at 10% 0%, #fff1c8 0, transparent 33%), #fff8e8
 }
 
-.app-shell {
-    max-width: 1280px
-}
-
-.topbar {
-    border-bottom: 3px solid #29334a
-}
-
-.brand {
-    color: #29334a;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 800;
-    letter-spacing: -1.2px
-}
-
-.brand-mark {
-    background: #ffcb45;
-    color: #29334a;
-    border: 2px solid #29334a;
-    border-radius: 11px;
-    box-shadow: 2px 3px 0 #29334a
-}
-
-.top-note {
-    color: #59647d;
-    font-weight: 700
-}
-
-.status-dot,
-.field-top i {
-    background: #40c995;
-    box-shadow: 0 0 0 3px #b7f0d8
-}
-
-.icon-button {
-    border: 2px solid #29334a;
-    background: #ffcb45;
-    color: #29334a;
-    border-radius: 8px;
-    box-shadow: 2px 3px 0 #29334a;
-    font-weight: 800
-}
-
-.topbar-actions {
-    display: flex;
-    gap: 8px
-}
-
 .lesson-row h1 {
     font-family: 'DM Sans', sans-serif;
     font-size: 28px;
@@ -680,51 +625,6 @@ body {
     color: #ed6a53;
     font-weight: 800;
     letter-spacing: .13em
-}
-
-.stat-label {
-    color: #768099;
-    font-weight: 800;
-    letter-spacing: .08em
-}
-
-.progress-track {
-    background: #deded4;
-    height: 8px
-}
-
-.progress-track span {
-    background: #40c995
-}
-
-.playfield {
-    border: 3px solid #29334a;
-    border-radius: 20px;
-    box-shadow: 5px 6px 0 #29334a;
-    min-height: 532px;
-    background: #b9edff;
-    background-image: radial-gradient(circle at 13% 24%, #ffffff91 0 5px, transparent 6px), radial-gradient(circle at 82% 32%, #ffffff91 0 7px, transparent 8px), radial-gradient(circle at 91% 70%, #ffffff91 0 4px, transparent 5px), linear-gradient(180deg, #a9e8ff 0%, #dbf7ff 72%, #c4f1b1 72%, #c4f1b1 100%)
-}
-
-.field-glow {
-    display: none
-}
-
-.field-top {
-    color: #5986a0;
-    font-size: 10px;
-    font-weight: 800
-}
-
-.field-top i {
-    background: #ffcd43;
-    box-shadow: none
-}
-
-.bubble-grid {
-    max-width: 500px;
-    gap: 8px 10px;
-    margin-top: 21px
 }
 
 .bubble-cell.bubble {
@@ -752,20 +652,6 @@ body {
 .translit {
     color: #29334a;
     font-weight: 800
-}
-
-.game-feedback {
-    color: #405b77;
-    font-weight: 700;
-    font-size: 12px
-}
-
-.feedback-icon {
-    color: #f4a929
-}
-
-.shooter-area {
-    height: 137px
 }
 
 .loaded {
@@ -806,124 +692,13 @@ body {
     padding: 0 5px
 }
 
-.field-floor {
-    display: none
-}
-
-.under-field {
-    color: #56657e;
-    font-size: 11px;
-    font-weight: 700
-}
-
-.under-field button {
-    color: #29334a;
-    font-weight: 800
-}
-
-.under-field button:hover {
-    color: #ed6a53
-}
-
+/* Right column: logo, level selector, and sounds card */
 .side-column {
     margin-top: 0;
     display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: 10px
-}
-
-.title-progress {
-    width: 216px;
-    flex: 0 0 216px;
-    align-self: flex-start;
-    margin-left: auto;
-    margin-right: 28px
-}
-
-.title-progress .progress-head {
-    font-size: 10px;
-    font-weight: 800;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex-direction: row;
-    gap: 8px;
-    height: 22px;
-    line-height: 22px;
-    white-space: nowrap
-}
-
-.title-progress .progress-head span:first-child {
-    color: #768099;
-    font-size: 15px;
-    font-weight: 800;
-    line-height: 22px;
-    letter-spacing: .08em
-}
-
-.title-progress .progress-head span:last-child {
-    color: #29334a;
-    font: 800 18px 'DM Sans', sans-serif;
-    line-height: 22px;
-    letter-spacing: normal
-}
-
-.title-progress .progress-track {
-    transform: translateY(5px)
-}
-
-.title-stats .stat-label {
-    line-height: 22px;
-}
-
-.title-stats {
-    display: flex;
-    gap: 24px;
-    align-self: flex-start;
-    margin-bottom: 4px
-}
-
-.title-stats>div {
-    display: flex;
-    flex-direction: column;
-    gap: 2px
-}
-
-.title-stats strong {
-    font: 800 18px 'DM Sans', sans-serif;
-    color: #29334a
-}
-
-.title-stats strong.score-value {
-    display: inline-block;
-    animation: score-pop .55s ease
-}
-
-@keyframes score-pop {
-    0% {
-        transform: scale(1.45);
-        color: #e5871b
-    }
-
-    100% {
-        transform: scale(1);
-        color: #29334a
-    }
-}
-
-.lesson-card {
-    border: 3px solid #29334a;
-    border-radius: 17px;
-    box-shadow: 4px 5px 0 #29334a;
-    background: #fff;
-    margin-top: 20px
-}
-
-.card-head h2 {
-    font-family: 'DM Sans', sans-serif;
-    color: #29334a;
-    font-size: 21px;
-    font-weight: 800
 }
 
 .card-description {
@@ -995,11 +770,6 @@ body {
     color: #29334a
 }
 
-.app-footer {
-    border-color: #29334a;
-    color: #6a758c
-}
-
 .app-footer span:last-child {
     color: #ed6a53;
     font-weight: 700
@@ -1014,10 +784,6 @@ body {
     font-size: 15px;
     font-weight: 800;
     letter-spacing: .08em
-}
-
-.side-level-select span {
-    flex: 0 0 auto
 }
 
 .side-level-select select {
@@ -1036,23 +802,9 @@ body {
     letter-spacing: normal
 }
 
-.loading {
-    color: #29334a
-}
-
-.loading .brand-mark {
-    background: #ffcb45;
-    border: 2px solid #29334a;
-    box-shadow: 3px 4px 0 #29334a
-}
-
 @media(max-width:650px) {
     .playfield {
         min-height: 470px
-    }
-
-    .bubble-grid {
-        gap: 7px 4px
     }
 
     .bubble-cell.bubble {
@@ -1072,14 +824,6 @@ body {
         height: 18px;
         font-size: 9px
     }
-}
-
-.bubble-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    max-width: 500px;
-    overflow: visible
 }
 
 .bubble-grid-row {
@@ -1181,44 +925,8 @@ body {
     }
 }
 
-.playfield {
-    height: 532px;
-    min-height: 532px;
-    background: #b9edff;
-    background-image: radial-gradient(circle at 13% 24%, #ffffff91 0 5px, transparent 6px), radial-gradient(circle at 82% 32%, #ffffff91 0 7px, transparent 8px), radial-gradient(circle at 91% 70%, #ffffff91 0 4px, transparent 5px), linear-gradient(180deg, #a9e8ff 0%, #dbf7ff 79.5%, #c4f1b1 80%, #c4f1b1 100%);
-    overflow: hidden
-}
-
-.field-glow {
-    display: none
-}
-
-.field-top {
-    position: absolute;
-    top: 18px;
-    left: 28px;
-    right: 28px;
-    z-index: 2
-}
-
-.bubble-grid {
-    position: absolute;
-    top: 54px;
-    left: 0;
-    transform: translateX(-15px);
-    width: 100%;
-    max-width: none;
-    margin: 0;
-    padding: 0 26px;
-    z-index: 1
-}
-
 .bubble-grid-row+.bubble-grid-row {
-    margin-top: -10px
-}
-
-.bubble-grid-row.offset-row {
-    transform: translateX(6.25%)
+    margin-top: -4px
 }
 
 .danger-line {
@@ -1227,7 +935,7 @@ body {
     right: 0;
     bottom: 20%;
     z-index: 3;
-    border-top: 3px dashed #f15e64;
+    border-top: 3px dashed #ef6069;
     pointer-events: none
 }
 
@@ -1235,13 +943,10 @@ body {
     position: absolute;
     inset: 0;
     z-index: 2;
+    width: 100%;
+    height: 100%;
     overflow: visible;
     pointer-events: none
-}
-
-.aim-trajectory {
-    width: 100%;
-    height: 100%
 }
 
 .aim-trajectory polyline {
@@ -1288,35 +993,11 @@ body {
     stroke-dasharray: none
 }
 
-.danger-line {
-    border-color: #ef6069
-}
-
-.game-feedback {
-    position: absolute;
-    left: 10px;
-    right: 10px;
-    bottom: 143px;
-    z-index: 2
-}
-
-.shooter-area {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 8px;
-    height: 130px;
-    z-index: 2
-}
-
-.field-floor {
-    display: none
-}
-
 .game-over-modal .completion-sparkle {
     color: #ed6a53
 }
 
+/* Level completion and review modal */
 .level-complete-overlay {
     position: fixed;
     inset: 0;
@@ -1554,14 +1235,6 @@ body {
     }
 }
 
-.bubble-grid {
-    gap: 0
-}
-
-.bubble-grid-row+.bubble-grid-row {
-    margin-top: -4px
-}
-
 .bubble-cell,
 .bubble-cell.bubble {
     max-width: 58px
@@ -1585,6 +1258,7 @@ body {
 
 @media(max-width:650px) {
     .playfield {
+        margin-top: 0;
         height: 500px;
         min-height: 500px
     }
@@ -1592,7 +1266,7 @@ body {
     .bubble-grid {
         width: 100%;
         padding: 0 17px;
-        top: 52px;
+        top: 68px;
         gap: 0
     }
 
@@ -1640,16 +1314,6 @@ body {
         margin-top: 8px
     }
 
-    .title-stats {
-        gap: 12px
-    }
-
-    .title-progress {
-        width: 162px;
-        flex-basis: 162px;
-        margin-right: 12px
-    }
-
 }
 
 /* High-contrast palette for randomly placed bubbles and sound cards. */
@@ -1661,6 +1325,7 @@ body {
 .teal { --bubble-color: #78eee7; --bubble-shadow: #28c9c4 }
 .rose { --bubble-color: #ffb0d0; --bubble-shadow: #f178ab }
 .violet { --bubble-color: #8AA9FF; --bubble-shadow: #5E7DE6 }
+
 .orange { --bubble-color: #ffd09a; --bubble-shadow: #ff9b4a }
 .lime { --bubble-color: #d8f58c; --bubble-shadow: #9edb4f }
 
@@ -1674,3 +1339,4 @@ body {
 .sound-glyph.violet { background: #8AA9FF }
 .sound-glyph.orange { background: #ffd09a }
 .sound-glyph.lime { background: #d8f58c }
+
