@@ -6,7 +6,7 @@ import { clearBubbleGroup, findConnectedGroup } from './game/matching'
 import { liftLooseBubbles } from './game/gravity'
 import { createBoard } from './game/board'
 import { useKeyboardAim } from './hooks/useKeyboardAim'
-import { fetchLevels } from './services/levelService'
+import { cacheLevelAudio, fetchLevels } from './services/levelService'
 import { fitBubbleFont } from './utils/bubbleText'
 import { LevelReviewCard } from './components/LevelReviewCard'
 import { reviewProgress } from './utils/reviewProgress'
@@ -80,11 +80,37 @@ function App() {
   }, [pool])
 
   useEffect(() => {
-    fetchLevels().then((data) => {
-      setLevels(data)
-      setLevelId(Object.keys(data)[0])
-    }).catch(() => setMessage('Could not load levels from Firebase'))
+    let cancelled = false
+
+    fetchLevels().then(async (data) => {
+      const firstLevelId = Object.keys(data)[0]
+      const firstLevel = await cacheLevelAudio(firstLevelId, data[firstLevelId])
+      if (cancelled) return
+      setLevels({ ...data, [firstLevelId]: firstLevel })
+      setLevelId(firstLevelId)
+    }).catch(() => {
+      if (!cancelled) setMessage('Could not load levels from Firebase')
+    })
+
+    return () => {
+      cancelled = true
+    }
   }, [])
+
+  useEffect(() => {
+    const selectedLevel = levels?.[levelId]
+    if (!selectedLevel || selectedLevel.audioCached) return undefined
+
+    let cancelled = false
+    cacheLevelAudio(levelId, selectedLevel).then((cachedLevel) => {
+      if (cancelled) return
+      setLevels((previous) => ({ ...previous, [levelId]: cachedLevel }))
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [levelId, levels])
 
   const resetGame = useCallback(() => {
     if (!level) return

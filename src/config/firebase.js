@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app'
 import { getFirestore } from 'firebase/firestore'
+import { getStorage } from 'firebase/storage'
 
 // Word bank database. Keep this app separate from the app used for auth and scores.
 const firebaseConfig = {
@@ -14,5 +15,6 @@ const firebaseConfig = {
 
 const levelsApp = initializeApp(firebaseConfig, 'levels')
 const levelsDb = getFirestore(levelsApp)
+const levelsStorage = getStorage(levelsApp)
 
-export { levelsDb }
+export { levelsDb, levelsStorage }
