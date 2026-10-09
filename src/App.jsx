@@ -57,6 +57,7 @@ function App() {
   const [aimAngle, setAimAngle] = useState(0)
   const [trajectory, setTrajectory] = useState({ width: 0, height: 0, points: [], fullPoints: [], candidates: [] })
   const playfieldRef = useRef(null)
+  const lastResetLevelIdRef = useRef(null)
   const level = levels?.[levelId]
   const showAimGuide = levelId === 'level_1'
   const pool = useMemo(() => level?.bubble_pool ?? [], [level])
@@ -127,12 +128,11 @@ function App() {
   }, [level, pool])
 
   useEffect(() => {
-    if (!level) return
+    if (!level || lastResetLevelIdRef.current === levelId) return
     // This effect resets all game state whenever the selected lesson changes.
-    /* eslint-disable react-hooks/set-state-in-effect */
+    lastResetLevelIdRef.current = levelId
     resetGame()
-    /* eslint-enable react-hooks/set-state-in-effect */
-  }, [level, resetGame])
+  }, [level, levelId, resetGame])
 
   const speak = useCallback((bubble, { force = false } = {}) => {
     if ((!soundEffectsEnabled && !force) || !bubble?.audio) return
