@@ -332,6 +332,7 @@ function App() {
   return <main className="app-shell">
     <header className="topbar" aria-label="Navigation bar"><img className="navigation-logo" src={`${import.meta.env.BASE_URL}SanskritBubble_Logo-1.png`} alt="Sanskrit Bubble" /></header>
     <section className="game-layout">
+      <img className="header-bubble-art" src={`${import.meta.env.BASE_URL}HeaderBubble.png`} alt="" aria-hidden="true" />
       <div className="game-column">
         <div className="lesson-row"><div><div className="eyebrow">{levelId.replace('_', ' ').toUpperCase()}</div><h1>{level?.level_title?.replace(/^Lesson \d+: /, '') || 'Sanskrit vowels'}</h1></div><div className="lesson-audio-controls game-controls" aria-label="Game audio controls"><button className="icon-button" type="button" aria-label={musicPlaying ? 'Mute background music' : 'Play background music'} aria-pressed={musicPlaying} onClick={toggleMusic}>{musicPlaying ? '🔊' : '🔇'}</button><button className="icon-button" type="button" aria-label={soundEffectsEnabled ? 'Mute sound effects' : 'Play sound effects'} aria-pressed={soundEffectsEnabled} onClick={toggleSoundEffects}>{soundEffectsEnabled ? '🔔' : '🔕'}</button></div></div>
         <div className="playfield" ref={playfieldRef}>

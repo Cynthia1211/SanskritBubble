@@ -639,15 +639,22 @@ body {
 
 .lesson-row h1 {
     font-family: 'DM Sans', sans-serif;
-    font-size: 28px;
-    color: #29334a;
-    font-weight: 800
+    font-size: 32px;
+    color: #171717;
+    font-weight: 900
 }
 
 .eyebrow {
     color: #ed6a53;
     font-weight: 800;
     letter-spacing: .13em
+}
+
+.lesson-row .eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 900;
+    -webkit-text-stroke: .50px currentColor
 }
 
 .bubble-cell.bubble {
@@ -1358,6 +1365,26 @@ body {
 
 .sound-glyph.coral { background: #ff9f91 }
 .sound-glyph.mint { background: #8af0b2 }
+
+.header-bubble-art {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    display: block;
+    width: 60%;
+    height: 190px;
+    object-fit: cover;
+    object-position: center top;
+    opacity: .2;
+    pointer-events: none
+}
+
+@media(max-width:650px) {
+    .header-bubble-art {
+        height: 140px
+    }
+}
 .sound-glyph.lilac { background: #d7b8ff }
 .sound-glyph.gold { background: #ffe680 }
 .sound-glyph.blue { background: #8bdcff }
@@ -1366,4 +1393,17 @@ body {
 .sound-glyph.violet { background: #8AA9FF }
 .sound-glyph.orange { background: #ffd09a }
 .sound-glyph.lime { background: #d8f58c }
+
+.game-layout {
+    position: relative;
+    isolation: auto
+}
+
+.lesson-row,
+.playfield,
+.side-top,
+.lesson-card {
+    position: relative;
+    z-index: 1
+}
 
