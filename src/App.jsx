@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
+import headerBubble from './assets/HeaderBubble.png'
+import navigationLogo from './assets/SanskritBubble_Logo-1.png'
 import { calculateShot } from './game/shot'
 import { getPlacementCandidates as findPlacementCandidates } from './game/placement'
 import { clearBubbleGroup, findConnectedGroup } from './game/matching'
@@ -330,9 +332,9 @@ function App() {
   if (!levels) return <main className="loading"><span className="brand-mark">अ</span><p>{message || 'Getting your Sanskrit bubbles ready…'}</p></main>
 
   return <main className="app-shell">
-    <header className="topbar" aria-label="Navigation bar"><img className="navigation-logo" src={`${import.meta.env.BASE_URL}SanskritBubble_Logo-1.png`} alt="Sanskrit Bubble" /></header>
+    <header className="topbar" aria-label="Navigation bar"><img className="navigation-logo" src={navigationLogo} alt="Sanskrit Bubble" /></header>
     <section className="game-layout">
-      <img className="header-bubble-art" src={`${import.meta.env.BASE_URL}HeaderBubble.png`} alt="" aria-hidden="true" />
+      <img className="header-bubble-art" src={headerBubble} alt="" aria-hidden="true" />
       <div className="game-column">
         <div className="lesson-row"><div><div className="eyebrow">{levelId.replace('_', ' ').toUpperCase()}</div><h1>{level?.level_title?.replace(/^Lesson \d+: /, '') || 'Sanskrit vowels'}</h1></div><div className="lesson-audio-controls game-controls" aria-label="Game audio controls"><button className="icon-button" type="button" aria-label={musicPlaying ? 'Mute background music' : 'Play background music'} aria-pressed={musicPlaying} onClick={toggleMusic}>{musicPlaying ? '🔊' : '🔇'}</button><button className="icon-button" type="button" aria-label={soundEffectsEnabled ? 'Mute sound effects' : 'Play sound effects'} aria-pressed={soundEffectsEnabled} onClick={toggleSoundEffects}>{soundEffectsEnabled ? '🔔' : '🔕'}</button></div></div>
         <div className="playfield" ref={playfieldRef}>
