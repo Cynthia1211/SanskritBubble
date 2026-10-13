@@ -296,8 +296,8 @@ function App() {
           <div className="field-glow" />
           <div className="field-top"><span><i /> CLEAR ALL THE BUBBLES</span></div>
           <div className="field-score"><span>SCORE</span><strong key={score}>{String(score).padStart(4, '0')}</strong></div>
-          <div className="top-right-actions"><div className="level-position">LEVEL {levelIds.indexOf(levelId) + 1}/{levelIds.length}</div><button className="restart-button" onClick={resetGame}>Restart the level <span>↻</span></button></div>
-          <div className="shoot-hint"><div className="control-hint"><span className="keycap">←</span> <span className="keycap">→</span> AIM &nbsp; <span className="keycap space-key">SPACE</span> FIRE</div><span className="game-tip">✧&nbsp; Match 3 connected sounds to pop them!</span></div>
+          <div className="top-right-actions"><div className="level-position">LEVEL {levelIds.indexOf(levelId) + 1}/{levelIds.length}</div><button className="restart-button" aria-label="Restart the level" onClick={resetGame}><span className="restart-label">Restart the level</span><span className="restart-icon" aria-hidden="true">↻</span></button></div>
+          <div className="shoot-hint"><div className="control-hint"><span className="control-hint-aim"><span className="keycap">←</span> <span className="keycap">→</span> AIM</span><span className="control-hint-fire"><span className="keycap space-key">SPACE</span> FIRE</span></div><span className="game-tip">✧&nbsp; Match 3 connected sounds to pop them!</span></div>
           <div className="bubble-grid" style={{ '--cols': COLS }}>
             {board.map((row, r) => <div className={`bubble-grid-row ${r % 2 ? 'offset-row' : ''}`} key={`row-${r}`}>{row.map((bubble, c) => <div key={`${r}-${c}`} data-row={r} data-col={c} className={`bubble-cell ${bubble ? `bubble ${colorOrder[pool.findIndex((item) => item.id === bubble.id) % colorOrder.length]}` : 'empty'}`} aria-label={bubble?.devanagari}>
               {bubble && <span className="devanagari" style={{ fontSize: fitBubbleFont(bubble.devanagari, 25, 12) }}>{bubble.devanagari}</span>}

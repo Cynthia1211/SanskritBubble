@@ -213,7 +213,7 @@
     font-weight: 800
 }
 
-.restart-button span {
+.restart-button .restart-icon {
     margin-left: 5px;
     font-size: 15px
 }
@@ -1434,5 +1434,200 @@ body {
 .lesson-card {
     position: relative;
     z-index: 1
+}
+
+@media(max-width:650px) {
+    .topbar {
+        height: 64px
+    }
+
+    .navigation-logo {
+        top: 68px;
+        right: 0;
+        left: 0;
+        width: 100%;
+        z-index: 0
+    }
+
+    .header-bubble-art {
+        display: none
+    }
+
+    .game-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        /* Reserve a separate first row for the full-width logo. */
+        padding-top: calc(16px + 26.5vw)
+    }
+
+    .game-column,
+    .side-column {
+        display: contents
+    }
+
+    .lesson-row {
+        order: 1;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto auto;
+        column-gap: 10px;
+        row-gap: 4px;
+        width: 100%;
+        height: auto;
+        align-items: start;
+        z-index: 2
+    }
+
+    .lesson-row > div:first-child {
+        display: contents
+    }
+
+    .lesson-row .eyebrow {
+        grid-column: 1;
+        grid-row: 1;
+        align-self: center
+    }
+
+    .lesson-row h1 {
+        grid-column: 1;
+        grid-row: 2;
+        max-width: 100%;
+        margin: 0;
+        font-size: clamp(24px, 7vw, 32px);
+        line-height: 1.1;
+        white-space: normal;
+        overflow-wrap: anywhere
+    }
+
+    .lesson-audio-controls.game-controls {
+        position: absolute;
+        top: -56px;
+        right: calc(100% - 100vw + 32px);
+        width: 100%;
+        justify-content: flex-end;
+        margin: 0;
+        align-self: center;
+        transform: none;
+        z-index: 11
+    }
+
+    .side-level-select {
+        order: 2;
+        align-self: stretch;
+        margin: 0;
+        transform: none;
+        flex-wrap: nowrap
+    }
+
+    .side-level-select select {
+        width: 100%;
+        max-width: none
+    }
+
+    .playfield {
+        order: 3;
+        width: 100%;
+        box-sizing: border-box;
+        height: clamp(440px, 130vw, 500px);
+        min-height: 0;
+        margin-top: 10px;
+        padding: 16px 8px 0
+    }
+
+    .bubble-grid {
+        left: 0;
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0 8px;
+        transform: none
+    }
+
+    .bubble-grid-row {
+        grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+        column-gap: clamp(1px, .75vw, 5px);
+        row-gap: 0
+    }
+
+    .bubble-grid-row.offset-row {
+        transform: translateX(3.57%)
+    }
+
+    .bubble-cell,
+    .bubble-cell.bubble {
+        width: 100%;
+        max-width: none;
+        min-width: 0;
+        aspect-ratio: 1
+    }
+
+    .bubble-cell.bubble {
+        container-type: inline-size
+    }
+
+    .bubble-cell.bubble .devanagari {
+        max-width: 88%;
+        overflow: hidden;
+        white-space: nowrap;
+        font-size: clamp(12px, 72cqw, 25px) !important;
+        line-height: 1
+    }
+
+    .loaded {
+        width: clamp(48px, 18vw, 68px);
+        height: clamp(48px, 18vw, 68px)
+    }
+
+    .top-right-actions .level-position {
+        display: none
+    }
+
+    .restart-button .restart-label {
+        font-size: 0
+    }
+
+    .restart-button .restart-label::after {
+        content: 'Restart';
+        font-size: 10px
+    }
+
+    .shoot-hint {
+        display: contents
+    }
+
+    .shoot-hint .control-hint {
+        display: none
+    }
+
+    .control-hint-aim,
+    .control-hint-fire {
+        display: block;
+        white-space: nowrap
+    }
+
+    .shoot-hint .game-tip {
+        position: absolute;
+        left: 8px;
+        right: auto;
+        bottom: calc(20% + 10px);
+        width: max-content;
+        max-width: none;
+        z-index: 4;
+        margin: 0;
+        font-size: clamp(7px, 2.2vw, 9px);
+        line-height: 1.15;
+        text-align: left;
+        white-space: nowrap
+    }
+
+    .game-feedback {
+        bottom: 165px
+    }
+
+    .lesson-card {
+        order: 4;
+        width: 100%;
+        margin: 0 0 10px
+    }
 }
 
