@@ -1,13 +1,14 @@
 import { reviewProgress } from '../utils/reviewProgress'
+import { REVIEW_BONUS } from '../game/settings'
 
-export function LevelReviewCard({ pool, levelId, reviewedSounds, reviewSound, reviewBonus, colors }) {
+export function LevelReviewCard({ pool, levelId, reviewedSounds, reviewSound, colors }) {
   const { reviewedCount, total: reviewTarget, complete: allSoundsReviewed } = reviewProgress(pool, reviewedSounds)
 
   return <>
     <p className={`completion-review-hint${allSoundsReviewed ? ' completed' : ''}`} role="status">
       {allSoundsReviewed
-        ? <>✦ All {reviewTarget} sounds reviewed — <strong>+{reviewBonus}</strong> points earned!</>
-        : <>✧ Review all {reviewTarget} sound{reviewTarget === 1 ? '' : 's'} of this level to earn <strong>+{reviewBonus}</strong> points!</>}
+        ? <>✦ All {reviewTarget} sounds reviewed — <strong>+{REVIEW_BONUS}</strong> points earned!</>
+        : <>✧ Review all {reviewTarget} sound{reviewTarget === 1 ? '' : 's'} of this level to earn <strong>+{REVIEW_BONUS}</strong> points!</>}
     </p>
     <div className="completion-review-progress" aria-hidden="true">{Array.from({ length: reviewTarget }, (_, index) => <span key={`pip-${levelId}-${index}`} className={`review-pip${index < reviewedCount ? ' filled' : ''}`} />)}</div>
     <p className="completion-review-count"><strong>{reviewedCount}</strong> / <strong>{reviewTarget}</strong> played</p>

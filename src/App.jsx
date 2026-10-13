@@ -4,24 +4,22 @@ import headerBubble from './assets/HeaderBubble.png'
 import navigationLogo from './assets/SanskritBubble_Logo-1.png'
 import { calculateShot } from './game/shot'
 import { getPlacementCandidates as findPlacementCandidates } from './game/placement'
-import { clearBubbleGroup, findConnectedGroup } from './game/matching'
 import { liftLooseBubbles } from './game/gravity'
 import { createBoard } from './game/board'
+import { COLS, LEVEL_COMPLETE_BONUS, REVIEW_BONUS, ROWS } from './game/settings'
+import { useShotController } from './game/useShotController'
 import { useKeyboardAim } from './hooks/useKeyboardAim'
 import { cacheLevelAudio, fetchLevels } from './services/levelService'
 import { fitBubbleFont } from './utils/bubbleText'
+import { BubbleFlight } from './components/BubbleFlight'
 import { LevelReviewCard } from './components/LevelReviewCard'
 import { reviewProgress } from './utils/reviewProgress'
 import { startBGM as startBackgroundMusic, stopBGM as stopBackgroundMusic } from './assets/Tone'
-import { playGearRotate, playPopSound } from './assets/SoundEffects'
+import { playGearRotate } from './assets/SoundEffects'
 
-const COLS = 14
-const ROWS = 10
 const AIM_STEP = 2
 const COLORS = ['coral', 'mint', 'gold', 'blue', 'lilac', 'teal', 'rose', 'orange', 'lime', 'violet']
 const SCORE_STORAGE_KEY = 'sanskrit-bubble-score'
-const LEVEL_COMPLETE_BONUS = 50
-const REVIEW_BONUS = 50
 // Keep the running score between levels and page reloads in this browser tab.
 function readStoredScore() {
   const stored = Number(window.sessionStorage.getItem(SCORE_STORAGE_KEY))
@@ -48,7 +46,6 @@ function App() {
   const [levelId, setLevelId] = useState('level_1')
   const [board, setBoard] = useState([])
   const [message, setMessage] = useState('')
-  const [busy, setBusy] = useState(false)
   const [gameOver, setGameOver] = useState(false)
   const [levelComplete, setLevelComplete] = useState(false)
   const [score, setScore] = useState(readStoredScore)
@@ -70,7 +67,6 @@ function App() {
   // makes NEXT jump when a bubble is cleared or gravity changes the board.
   const current = hasBubbles && shooterQueue.length ? shooterQueue[0] : null
   const next = hasBubbles && shooterQueue.length > 1 ? shooterQueue[1] : null
-  const loadedBubble = busy ? next : current
   const soundGlyphWidth = useMemo(() => {
     const segmenter = typeof Intl.Segmenter === 'function'
       ? new Intl.Segmenter('hi', { granularity: 'grapheme' })
@@ -114,27 +110,6 @@ function App() {
       cancelled = true
     }
   }, [levelId, levels])
-
-  const resetGame = useCallback(() => {
-    if (!level) return
-    const freshBoard = liftLooseBubbles(createBoard(level, { rows: ROWS, cols: COLS }), { rows: ROWS, cols: COLS })
-    const presentSounds = new Set(freshBoard.flat().filter(Boolean).map((bubble) => bubble.id))
-    const initialQueue = shuffleItems(pool).filter((item) => presentSounds.has(item.id))
-    setBoard(freshBoard)
-    setShooterQueue(initialQueue.length ? initialQueue : shuffleItems(pool))
-    setGameOver(false)
-    setLevelComplete(false)
-    setReviewedSounds(new Set())
-    setReviewBonusAwarded(false)
-    setMessage('Aim with ← → and press SPACE to pop!')
-  }, [level, pool])
-
-  useEffect(() => {
-    if (!level || lastResetLevelIdRef.current === levelId) return
-    // This effect resets all game state whenever the selected lesson changes.
-    lastResetLevelIdRef.current = levelId
-    resetGame()
-  }, [level, levelId, resetGame])
 
   const speak = useCallback((bubble, { force = false } = {}) => {
     if ((!soundEffectsEnabled && !force) || !bubble?.audio) return
@@ -234,70 +209,50 @@ function App() {
   const traceShot = useCallback((angle) => calculateShot({ field: playfieldRef.current, angle }), [])
   const getPlacementCandidates = useCallback((shot) => findPlacementCandidates({ field: playfieldRef.current, board, shot, cols: COLS, rows: ROWS }), [board])
 
-  // Trace the shot, place the current bubble, then resolve matching and gravity.
-  const shoot = useCallback(() => {
-    if (!current || busy || gameOver || levelComplete || !board.length) return
-    setBusy(true)
-    const nextBoard = board.map((row) => [...row])
-    const field = playfieldRef.current
-    if (!field) { setBusy(false); return }
-    const shot = traceShot(aimAngle)
-    const target = getPlacementCandidates(shot)[0]
-    if (!target) {
-      setBusy(false)
-      setMessage('')
-      return
-    }
-    const { row: targetRow, col: targetCol } = target
-    nextBoard[targetRow][targetCol] = current
-    setBoard(nextBoard)
-    setMessage('')
-    const found = findConnectedGroup(nextBoard, targetRow, targetCol, current.id)
-    const cleared = found.size >= 3 ? found : new Set()
-    if (cleared.size) {
-      speak(current)
-    } else {
-      if (soundEffectsEnabled) playPopSound()
-    }
-    setTimeout(() => {
-      const settledBoard = cleared.size ? clearBubbleGroup(nextBoard, cleared) : nextBoard
-      if (cleared.size) {
-        setMessage(`${current.devanagari} · ${current.iast} — Great match!`)
-      } else {
-        setMessage('Find two more matching sounds to pop a group!')
-      }
-      const liftedBoard = liftLooseBubbles(settledBoard, { rows: ROWS, cols: COLS })
-      const fieldRect = field.getBoundingClientRect()
-      const dangerY = fieldRect.bottom - fieldRect.height * 0.2
-      const reachesDangerLine = liftedBoard.some((row, r) => row.some((bubble, c) => {
-        if (!bubble) return false
-        const element = field.querySelector(`[data-row="${r}"][data-col="${c}"]`)
-        if (!element) return false
-        return element.getBoundingClientRect().bottom >= dangerY
-      }))
-      if (reachesDangerLine) {
-        setGameOver(true)
-        setMessage('Bubble pile reached the danger line!')
-      } else if (!liftedBoard.some((row) => row.some(Boolean))) {
-        setLevelComplete(true)
-        addScore(LEVEL_COMPLETE_BONUS)
-        setMessage(`Level cleared! +${LEVEL_COMPLETE_BONUS} points!`)
-      }
-      setBoard(liftedBoard)
-      // Advance only after matching and gravity settle. Any queued sound that
-      // no longer exists on the board must be skipped before showing NEXT.
-      const presentIds = new Set(liftedBoard.flat().filter(Boolean).map((bubble) => bubble.id))
-      const available = pool.filter((item) => presentIds.has(item.id))
-      setShooterQueue((previous) => {
-        const remaining = previous.slice(1).filter((item) => presentIds.has(item.id))
-        while (remaining.length < 2 && available.length) {
-          remaining.push(available[Math.floor(Math.random() * available.length)])
-        }
-        return remaining
-      })
-      setBusy(false)
-    }, 500)
-  }, [addScore, aimAngle, board, busy, current, gameOver, getPlacementCandidates, levelComplete, pool, soundEffectsEnabled, speak, traceShot])
+  const { busy, cancelShot, completeFlight, flight, shoot } = useShotController({
+    addScore,
+    aimAngle,
+    board,
+    colorOrder,
+    current,
+    gameOver,
+    getPlacementCandidates,
+    levelComplete,
+    levelId,
+    playfieldRef,
+    pool,
+    setBoard,
+    setGameOver,
+    setLevelComplete,
+    setMessage,
+    setShooterQueue,
+    soundEffectsEnabled,
+    speak,
+    traceShot,
+  })
+  const loadedBubble = busy ? next : current
+
+  const resetGame = useCallback(() => {
+    if (!level) return
+    cancelShot()
+    const freshBoard = liftLooseBubbles(createBoard(level, { rows: ROWS, cols: COLS }), { rows: ROWS, cols: COLS })
+    const presentSounds = new Set(freshBoard.flat().filter(Boolean).map((bubble) => bubble.id))
+    const initialQueue = shuffleItems(pool).filter((item) => presentSounds.has(item.id))
+    setBoard(freshBoard)
+    setShooterQueue(initialQueue.length ? initialQueue : shuffleItems(pool))
+    setGameOver(false)
+    setLevelComplete(false)
+    setReviewedSounds(new Set())
+    setReviewBonusAwarded(false)
+    setMessage('Aim with ← → and press SPACE to pop!')
+  }, [cancelShot, level, pool, setBoard, setShooterQueue])
+
+  useEffect(() => {
+    if (!level || lastResetLevelIdRef.current === levelId) return
+    // This effect resets all game state whenever the selected lesson changes.
+    lastResetLevelIdRef.current = levelId
+    resetGame()
+  }, [level, levelId, resetGame])
 
   useKeyboardAim({ aimAngle, onShoot: shoot, onAimChange: playAimSound, setAimAngle, step: AIM_STEP })
 
@@ -358,6 +313,7 @@ function App() {
           <div className="danger-line" />
           <div className="game-feedback"><span className="feedback-icon">✦</span>{message}</div>
           <div className="shooter-area"><div className="next-bubble"><small>NEXT</small>{!busy && next && <div className={`bubble mini ${colorOrder[pool.findIndex((item) => item.id === next.id) % colorOrder.length]}`}><span className="translit" style={{ fontSize: fitBubbleFont(next.iast, 16, 10) }}>{next.iast}</span></div>}</div><div className="shooter">{loadedBubble && <div className={`bubble loaded ${colorOrder[pool.findIndex((item) => item.id === loadedBubble.id) % colorOrder.length]}`}><span className="translit" style={{ fontSize: fitBubbleFont(loadedBubble.iast, 22, 18) }}>{loadedBubble.iast}</span></div>}</div></div>
+          {flight && <BubbleFlight flight={flight} onComplete={completeFlight} />}
           <div className="field-floor" />
         </div>
         {gameOver && <div className="level-complete-overlay"><section className="level-complete-modal game-over-modal" role="dialog" aria-modal="true" aria-labelledby="game-over-title">
@@ -377,11 +333,11 @@ function App() {
           <p className="completion-eyebrow">LEVEL COMPLETE</p>
           <h2 id="completion-title">Congratulations!</h2>
           <p className="completion-description">Level cleared! <strong className="bonus-score">+{LEVEL_COMPLETE_BONUS}</strong> points added to your score.</p>
-          <LevelReviewCard pool={pool} levelId={levelId} reviewedSounds={reviewedSounds} reviewSound={reviewSound} reviewBonus={REVIEW_BONUS} colors={colorOrder} />
+          <LevelReviewCard pool={pool} levelId={levelId} reviewedSounds={reviewedSounds} reviewSound={reviewSound} colors={colorOrder} />
           <button className="completion-continue" onClick={continueAfterLevel}>{nextLevelId ? 'Continue' : 'Finish'}</button>
         </section></div>}
       </div>
-      <div className="side-column"><label className="side-level-select"><select value={levelId} onChange={(event) => setLevelId(event.target.value)}>{Object.entries(levels).map(([id, item], index) => <option key={id} value={id}>{`LEVEL ${index + 1}: ${item.level_title}`}</option>)}</select></label><aside className="lesson-card"><div className="card-head"><div className="eyebrow">SOUNDS IN THIS LEVEL</div></div><p className="card-description">Listen, learn, and match the Sanskrit sounds.</p><div className="sound-list">{pool.map((item, i) => <button className="sound-item" key={`${levelId}-${i}-${item.iast}`} onClick={() => speak(item, { force: true })}><span className={`sound-glyph ${colorOrder[i % colorOrder.length]}`} style={{ width: soundGlyphWidth, fontSize: fitBubbleFont(item.devanagari, 22, 12) }}>{item.devanagari}</span><span className="sound-word"><strong>{item.iast}</strong><small>{item.description ?? item.meaning ?? ''}</small></span><span className="play-icon">▶</span></button>)}</div><div className="tip-box"><span>✧</span><p><strong>Sound tip</strong><br />Tap a sound to hear it. Try saying it out loud!</p></div></aside></div>
+      <div className="side-column"><label className="side-level-select"><select value={levelId} onChange={(event) => { cancelShot(); setLevelId(event.target.value) }}>{Object.entries(levels).map(([id, item], index) => <option key={id} value={id}>{`LEVEL ${index + 1}: ${item.level_title}`}</option>)}</select></label><aside className="lesson-card"><div className="card-head"><div className="eyebrow">SOUNDS IN THIS LEVEL</div></div><p className="card-description">Listen, learn, and match the Sanskrit sounds.</p><div className="sound-list">{pool.map((item, i) => <button className="sound-item" key={`${levelId}-${i}-${item.iast}`} onClick={() => speak(item, { force: true })}><span className={`sound-glyph ${colorOrder[i % colorOrder.length]}`} style={{ width: soundGlyphWidth, fontSize: fitBubbleFont(item.devanagari, 22, 12) }}>{item.devanagari}</span><span className="sound-word"><strong>{item.iast}</strong><small>{item.description ?? item.meaning ?? ''}</small></span><span className="play-icon">▶</span></button>)}</div><div className="tip-box"><span>✧</span><p><strong>Sound tip</strong><br />Tap a sound to hear it. Try saying it out loud!</p></div></aside></div>
     </section>
     <footer className="app-footer"><span>Start with a sound. Discover an ancient script.</span><span>आनन्दमयम् अध्ययनम्&nbsp; ✦ &nbsp;Happy learning</span></footer>
   </main>

@@ -858,7 +858,7 @@ body {
 
 .bubble-grid-row {
     display: grid;
-    grid-template-columns: repeat(14, minmax(0, 1fr));
+    grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
     gap: 8px 8px;
     width: 100%;
     justify-items: center
@@ -1021,6 +1021,35 @@ body {
     stroke: #e45c42;
     stroke-width: 3;
     stroke-dasharray: none
+}
+
+.bubble-flight {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 4;
+    offset-anchor: center;
+    offset-rotate: 0deg;
+    animation: bubble-shot-flight linear both;
+    pointer-events: none
+}
+
+@keyframes bubble-shot-flight {
+    from {
+        offset-distance: 0%;
+        transform: scale(1)
+    }
+
+    to {
+        offset-distance: 100%;
+        transform: scale(var(--flight-scale))
+    }
+}
+
+@media(prefers-reduced-motion: reduce) {
+    .bubble-flight {
+        animation-duration: 1ms !important
+    }
 }
 
 .game-over-modal .completion-sparkle {
