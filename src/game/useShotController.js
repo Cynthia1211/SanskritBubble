@@ -38,13 +38,13 @@ export function useShotController({
 
   useEffect(() => () => window.clearTimeout(resolutionTimerRef.current), [])
 
-  const shoot = useCallback(() => {
+  const shoot = useCallback((shotAngle = aimAngle) => {
     if (!current || busy || gameOver || levelComplete || !board.length) return
 
     const field = playfieldRef.current
     if (!field) return
 
-    const shot = traceShot(aimAngle)
+    const shot = traceShot(shotAngle)
     const target = getPlacementCandidates(shot)[0]
     if (!target) {
       setMessage('')
