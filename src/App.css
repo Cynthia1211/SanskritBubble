@@ -357,18 +357,11 @@
     font-size: 9px
 }
 
-.shoot-hint {
-    position: absolute;
-    left: 15px;
-    bottom: 15px;
-    color: #98a99b;
-    font-size: 9px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start
+.pointer-control-hint {
+    display: none
 }
 
-.pointer-control-hint {
+.mobile-pointer-hint {
     display: none
 }
 
@@ -378,12 +371,16 @@
     margin-left: 4px
 }
 
-.shoot-hint .game-tip {
-    margin: 20px 0 0;
-    color: #56657e;
+.shoot-hint .control-hint-aim,
+.shoot-hint .control-hint-fire,
+.shoot-hint .pointer-control-hint,
+.shoot-hint .pointer-control-hint span,
+.mobile-pointer-hint {
+    font-family: inherit;
     font-size: 10px;
-    font-weight: 700;
-    white-space: nowrap
+    font-weight: 800;
+    line-height: 1.1;
+    color: #658c70
 }
 
 .lesson-card {
@@ -1179,18 +1176,19 @@ body {
     .shoot-hint .control-hint {
         position: absolute;
         left: 15px;
-        bottom: calc(20% - 23px);
+        top: calc(80% + 8px);
         z-index: 4;
         display: block;
-        font-size: 9px;
+        font-size: 10px;
         line-height: 1.1;
         white-space: nowrap
     }
 
-    .shoot-hint .control-hint-aim,
-    .shoot-hint .control-hint-fire {
-        font-size: 9px;
-        margin-left: 0
+    .shoot-hint .pointer-control-hint {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        margin: 5px 0 0;
     }
 
     .control-hint .keycap {
@@ -1200,13 +1198,6 @@ body {
         font-size: 8px
     }
 
-    .shoot-hint .game-tip {
-        position: absolute;
-        left: 15px;
-        bottom: 15px;
-        z-index: 4;
-        margin: 0
-    }
 }
 
 /*  Medium screens (651px to 1023px)  */
@@ -1214,6 +1205,20 @@ body {
 /*  Shared medium and small screen rules  */
 
 @media (min-width: 651px) and (max-width: 1023px) {
+    .shoot-hint {
+        display: contents
+    }
+
+    .shoot-hint .control-hint {
+        display: contents
+    }
+
+    .shoot-hint .control-hint-aim,
+    .shoot-hint .control-hint-fire,
+    .shoot-hint .pointer-control-or {
+        display: none
+    }
+
     .bubble-grid-row {
         gap: 7px 5px
     }
@@ -1328,28 +1333,15 @@ body {
         margin: 0;
         padding: 18px 10px
     }
-}
 
-@media (max-width: 1023px) {
-    .shoot-hint .control-hint {
-        display: none
-    }
-
-    .pointer-control-hint {
+    .shoot-hint .pointer-control-hint {
         position: absolute;
-        top: 41px;
-        right: 12px;
-        z-index: 3;
+        left: 15px;
+        bottom: calc(20% - 18px);
+        z-index: 4;
         display: block;
         margin: 0;
-        padding: 3px 7px;
-        border: 1px solid rgba(41, 51, 74, .25);
-        border-radius: 7px;
-        background: rgba(255, 255, 255, .72);
-        color: #405b77;
-        font-size: 9px;
-        font-weight: 700;
-        line-height: 1.2;
+        color: #658c70;
         pointer-events: none;
         white-space: nowrap
     }
@@ -1358,6 +1350,10 @@ body {
 /*  Small screens (650px and narrower)  */
 
 @media(max-width:650px) {
+    .field-top {
+        display: none
+    }
+
     .app-shell {
         padding: 0 16px
     }
@@ -1699,27 +1695,33 @@ body {
     }
 
     .shoot-hint .control-hint {
+        display: contents
+    }
+
+    .shoot-hint .control-hint-aim,
+    .shoot-hint .control-hint-fire,
+    .shoot-hint .pointer-control-or {
         display: none
+    }
+
+    .shoot-hint .pointer-control-hint {
+        display: none
+    }
+
+    .mobile-pointer-hint {
+        position: absolute;
+        right: 5px;
+        top: calc(80% + 5px);
+        z-index: 4;
+        display: block;
+        pointer-events: none;
+        text-align: right;
+        line-height: 1.35
     }
 
     .control-hint-aim,
     .control-hint-fire {
         display: block;
-        white-space: nowrap
-    }
-
-    .shoot-hint .game-tip {
-        position: absolute;
-        left: 8px;
-        right: auto;
-        bottom: calc(20% + 10px);
-        width: max-content;
-        max-width: none;
-        z-index: 4;
-        margin: 0;
-        font-size: clamp(7px, 2.2vw, 9px);
-        line-height: 1.15;
-        text-align: left;
         white-space: nowrap
     }
 
