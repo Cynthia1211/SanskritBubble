@@ -9,6 +9,7 @@ import { createBoard } from './game/board'
 import { COLS, LEVEL_COMPLETE_BONUS, REVIEW_BONUS, ROWS } from './game/settings'
 import { useShotController } from './game/useShotController'
 import { useKeyboardAim } from './hooks/useKeyboardAim'
+import { usePointerAim } from './hooks/usePointerAim'
 import { cacheLevelAudio, fetchLevels } from './services/levelService'
 import { fitBubbleFont } from './utils/bubbleText'
 import { BubbleFlight } from './components/BubbleFlight'
@@ -255,6 +256,14 @@ function App() {
   }, [level, levelId, resetGame])
 
   useKeyboardAim({ aimAngle, onShoot: shoot, onAimChange: playAimSound, setAimAngle, step: AIM_STEP })
+  const pointerAimHandlers = usePointerAim({
+    aimAngle,
+    disabled: busy || gameOver || levelComplete || !current,
+    onAimChange: playAimSound,
+    onShoot: shoot,
+    playfieldRef,
+    setAimAngle,
+  })
 
   useEffect(() => {
     const updateTrajectory = () => {
@@ -293,12 +302,12 @@ function App() {
         <div className="lesson-row"><div><div className="eyebrow">{levelId.replace('_', ' ').toUpperCase()}</div><h1>{level?.level_title?.replace(/^Lesson \d+: /, '') || 'Sanskrit vowels'}</h1></div><div className="lesson-audio-controls game-controls" aria-label="Game audio controls"><button className="icon-button" type="button" aria-label={musicPlaying ? 'Mute background music' : 'Play background music'} aria-pressed={musicPlaying} onClick={toggleMusic}>{musicPlaying ? '🔊' : '🔇'}</button><button className="icon-button" type="button" aria-label={soundEffectsEnabled ? 'Mute sound effects' : 'Play sound effects'} aria-pressed={soundEffectsEnabled} onClick={toggleSoundEffects}>{soundEffectsEnabled ? '🔔' : '🔕'}</button></div></div>
         <div className="playfield-wrap">
         <img className="header-bubble-art" src={headerBubble} alt="" aria-hidden="true" />
-        <div className="playfield" ref={playfieldRef}>
+        <div className="playfield" ref={playfieldRef} {...pointerAimHandlers}>
           <div className="field-glow" />
           <div className="field-top"><span><i /> CLEAR ALL THE BUBBLES</span></div>
           <div className="field-score"><span>SCORE</span><strong key={score}>{String(score).padStart(4, '0')}</strong></div>
           <div className="top-right-actions"><div className="level-position">LEVEL {levelIds.indexOf(levelId) + 1}/{levelIds.length}</div><button className="restart-button" aria-label="Restart the level" onClick={resetGame}><span className="restart-label">Restart the level</span><span className="restart-icon" aria-hidden="true">↻</span></button></div>
-          <div className="shoot-hint"><div className="control-hint"><span className="control-hint-aim"><span className="keycap">←</span> <span className="keycap">→</span> AIM</span><span className="control-hint-fire"><span className="keycap space-key">SPACE</span> FIRE</span></div><span className="game-tip">✧&nbsp; Match 3 connected sounds to pop them!</span></div>
+          <div className="shoot-hint"><span className="pointer-control-hint">Drag to aim · Release to shoot</span><div className="control-hint"><span className="control-hint-aim"><span className="keycap">←</span> <span className="keycap">→</span> AIM</span><span className="control-hint-fire"><span className="keycap space-key">SPACE</span> FIRE</span></div><span className="game-tip">✧&nbsp; Match 3 connected sounds to pop them!</span></div>
           <div className="bubble-grid" style={{ '--cols': COLS }}>
             {board.map((row, r) => <div className={`bubble-grid-row ${r % 2 ? 'offset-row' : ''}`} key={`row-${r}`}>{row.map((bubble, c) => <div key={`${r}-${c}`} data-row={r} data-col={c} className={`bubble-cell ${bubble ? `bubble ${colorOrder[pool.findIndex((item) => item.id === bubble.id) % colorOrder.length]}` : 'empty'}`} aria-label={bubble?.devanagari}>
               {bubble && <span className="devanagari" style={{ fontSize: fitBubbleFont(bubble.devanagari, 25, 12) }}>{bubble.devanagari}</span>}
