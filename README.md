@@ -13,16 +13,6 @@ npm run dev
 
 Open the local URL printed by Vite (usually [http://localhost:5173](http://localhost:5173)).
 
-Other project commands:
-
-```bash
-npm run lint      # Run ESLint
-npm run build     # Create a production build in dist/
-npm run preview   # Preview the production build locally
-```
-
-There is currently no automated test script.
-
 ## How the Game Works
 
 - Lesson documents are read from the `levels` collection in Firebase Firestore. The app sorts lessons by the number in their ID and uses each document's `level_title` and `bubble_pool` fields.
