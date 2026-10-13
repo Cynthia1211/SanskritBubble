@@ -1,9 +1,11 @@
+import { COLS, ROWS } from './settings'
+
 function hexNeighbors(row, col) {
   const diagonalCols = row % 2 === 0 ? [col - 1, col] : [col, col + 1]
   return [[row, col - 1], [row, col + 1], ...diagonalCols.flatMap((adjacentCol) => [[row - 1, adjacentCol], [row + 1, adjacentCol]])]
 }
 
-export function liftLooseBubbles(board, { rows, cols }) {
+export function liftLooseBubbles(board, { rows = ROWS, cols = COLS } = {}) {
   // Find connected components, then move every component not attached to row 0 upward.
   const lifted = board.map((row) => [...row])
   const key = (row, col) => `${row},${col}`

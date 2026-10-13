@@ -1,4 +1,6 @@
-export function getPlacementCandidates({ field, board, shot, cols, rows }) {
+import { COLS, ROWS } from './settings'
+
+export function getPlacementCandidates({ field, board, shot, cols = COLS, rows = ROWS }) {
   if (!field || !shot.impact) return []
 
   // With no collision, the shot reaches the ceiling; choose an empty top-row cell.
