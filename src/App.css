@@ -528,7 +528,16 @@
     font-size: 13px
 }
 
-@media(max-width:850px) {
+@media (min-width: 651px) and (max-width: 1023px) {
+    .navigation-logo {
+        right: auto;
+        left: 0
+    }
+
+    .header-bubble-art {
+        display: none
+    }
+
     .app-shell {
         padding: 0 22px
     }
@@ -921,7 +930,7 @@ body {
     flex: 0 0 auto;
 }
 
-@media(max-width:850px) {
+@media (min-width: 651px) and (max-width: 1023px) {
     .bubble-grid-row {
         gap: 7px 5px
     }
@@ -1303,7 +1312,7 @@ body {
     transform: translateX(3.57%)
 }
 
-@media(max-width:850px) {
+@media (min-width: 651px) and (max-width: 1023px) {
 
     .bubble-cell,
     .bubble-cell.bubble {
@@ -1428,6 +1437,10 @@ body {
     isolation: auto
 }
 
+.playfield-wrap {
+    display: contents
+}
+
 .lesson-row,
 .playfield,
 .side-top,
@@ -1513,7 +1526,7 @@ body {
     }
 
     .side-level-select {
-        order: 2;
+        order: 3;
         align-self: stretch;
         margin: 0;
         transform: none;
@@ -1526,7 +1539,7 @@ body {
     }
 
     .playfield {
-        order: 3;
+        order: 2;
         width: 100%;
         box-sizing: border-box;
         height: clamp(440px, 130vw, 500px);
@@ -1628,6 +1641,133 @@ body {
         order: 4;
         width: 100%;
         margin: 0 0 10px
+    }
+}
+
+@media (min-width: 651px) and (max-width: 1023px) {
+    .header-bubble-art {
+        position: absolute;
+        top: -140px;
+        right: -100px;
+        left: auto;
+        z-index: 0;
+        display: block;
+        width: 100%;
+        height: 285px;
+        object-fit: contain;
+        object-position: center top;
+        opacity: .2;
+        pointer-events: none
+    }
+
+    .game-layout {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        /* Keep the page content clear of the logo below the navigation line. */
+        padding-top: 105px
+    }
+
+    .game-column,
+    .side-column {
+        display: contents
+    }
+
+    .lesson-row {
+        order: 1;
+        width: 100%
+    }
+
+    .lesson-audio-controls.game-controls {
+        position: absolute;
+        top: -101px;
+        right: 0;
+        width: auto;
+        margin: 0;
+        align-self: auto;
+        transform: none;
+        z-index: 11
+    }
+
+    .side-level-select {
+        order: 3;
+        width: 100%;
+        margin: 0;
+        transform: none
+    }
+
+    .side-level-select select {
+        width: 100%;
+        max-width: none
+    }
+
+    .playfield {
+        order: 2;
+        width: 100%;
+        box-sizing: border-box
+    }
+
+    .playfield-wrap {
+        position: relative;
+        display: block;
+        order: 2;
+        width: 100%
+    }
+
+    .playfield-wrap .playfield {
+        position: relative;
+        z-index: 1
+    }
+
+    .lesson-card {
+        order: 4;
+        width: 100%;
+        margin: 0
+    }
+}
+
+@media (max-width: 1023px) {
+    .shoot-hint .control-hint {
+        display: none
+    }
+}
+
+@media (min-width: 1024px) {
+    .shoot-hint {
+        display: contents
+    }
+
+    .shoot-hint .control-hint {
+        position: absolute;
+        left: 15px;
+        bottom: calc(20% - 23px);
+        z-index: 4;
+        display: block;
+        font-size: 9px;
+        line-height: 1.1;
+        white-space: nowrap
+    }
+
+    .shoot-hint .control-hint-aim,
+    .shoot-hint .control-hint-fire {
+        font-size: 9px;
+        margin-left: 0
+    }
+
+    .control-hint .keycap {
+        min-width: 18px;
+        height: 18px;
+        border-width: 1.5px;
+        font-size: 8px
+    }
+
+    .shoot-hint .game-tip {
+        position: absolute;
+        left: 15px;
+        bottom: 15px;
+        z-index: 4;
+        margin: 0
     }
 }
 

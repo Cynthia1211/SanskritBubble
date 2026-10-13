@@ -289,9 +289,10 @@ function App() {
   return <main className="app-shell">
     <header className="topbar" aria-label="Navigation bar"><img className="navigation-logo" src={navigationLogo} alt="Sanskrit Bubble" /></header>
     <section className="game-layout">
-      <img className="header-bubble-art" src={headerBubble} alt="" aria-hidden="true" />
       <div className="game-column">
         <div className="lesson-row"><div><div className="eyebrow">{levelId.replace('_', ' ').toUpperCase()}</div><h1>{level?.level_title?.replace(/^Lesson \d+: /, '') || 'Sanskrit vowels'}</h1></div><div className="lesson-audio-controls game-controls" aria-label="Game audio controls"><button className="icon-button" type="button" aria-label={musicPlaying ? 'Mute background music' : 'Play background music'} aria-pressed={musicPlaying} onClick={toggleMusic}>{musicPlaying ? '🔊' : '🔇'}</button><button className="icon-button" type="button" aria-label={soundEffectsEnabled ? 'Mute sound effects' : 'Play sound effects'} aria-pressed={soundEffectsEnabled} onClick={toggleSoundEffects}>{soundEffectsEnabled ? '🔔' : '🔕'}</button></div></div>
+        <div className="playfield-wrap">
+        <img className="header-bubble-art" src={headerBubble} alt="" aria-hidden="true" />
         <div className="playfield" ref={playfieldRef}>
           <div className="field-glow" />
           <div className="field-top"><span><i /> CLEAR ALL THE BUBBLES</span></div>
@@ -315,6 +316,7 @@ function App() {
           <div className="shooter-area"><div className="next-bubble"><small>NEXT</small>{!busy && next && <div className={`bubble mini ${colorOrder[pool.findIndex((item) => item.id === next.id) % colorOrder.length]}`}><span className="translit" style={{ fontSize: fitBubbleFont(next.iast, 16, 10) }}>{next.iast}</span></div>}</div><div className="shooter">{loadedBubble && <div className={`bubble loaded ${colorOrder[pool.findIndex((item) => item.id === loadedBubble.id) % colorOrder.length]}`}><span className="translit" style={{ fontSize: fitBubbleFont(loadedBubble.iast, 22, 18) }}>{loadedBubble.iast}</span></div>}</div></div>
           {flight && <BubbleFlight flight={flight} onComplete={completeFlight} />}
           <div className="field-floor" />
+        </div>
         </div>
         {gameOver && <div className="level-complete-overlay"><section className="level-complete-modal game-over-modal" role="dialog" aria-modal="true" aria-labelledby="game-over-title">
           <div className="completion-sparkle">✦</div>
